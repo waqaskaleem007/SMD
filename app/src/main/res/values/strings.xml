@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">Assignment2</string>
+
+    <string-array name="Students">
+        <item>waqas</item>
+        <item>raza</item>
+        <item>hood</item>
+        <item>alia</item>
+        <item>amna</item>
+        <item>hammad</item>
+        <item>ali</item>
+        <item>danish</item>
+        <item>aqsa</item>
+        <item>hadia</item>
+        <item>rizwan</item>
+        <item>waqas</item>
+        <item>raza</item>
+        <item>hood</item>
+        <item>alia</item>
+        <item>amna</item>
+        <item>hammad</item>
+        <item>ali</item>
+        <item>danish</item>
+        <item>aqsa</item>
+        <item>hadia</item>
+        <item>rizwan</item>
+        <item>waqas</item>
+        <item>raza</item>
+        <item>hood</item>
+        <item>alia</item>
+        <item>amna</item>
+        <item>hammad</item>
+        <item>ali</item>
+        <item>danish</item>
+        <item>aqsa</item>
+        <item>hadia</item>
+        <item>rizwan</item>
+        <item>waqas</item>
+        <item>raza</item>
+        <item>hood</item>
+        <item>alia</item>
+        <item>amna</item>
+        <item>hammad</item>
+        <item>ali</item>
+        <item>danish</item>
+        <item>aqsa</item>
+        <item>hadia</item>
+        <item>rizwan</item>
+
+
+    </string-array>
+
+
+</resources>
