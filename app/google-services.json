@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "734656883912",
+    "firebase_url": "https://chaman-dryfruits.firebaseio.com",
+    "project_id": "chaman-dryfruits",
+    "storage_bucket": "chaman-dryfruits.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734656883912:android:7025bf7d2280531ef749fd",
+        "android_client_info": {
+          "package_name": "com.example.chamandryfruits"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734656883912-1n7s9lhp2a0pcv1iigjts2d9hd2g44mq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4E1hblA20mXWeMmaqYzkZW8JTxmTvjsQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734656883912-1n7s9lhp2a0pcv1iigjts2d9hd2g44mq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
