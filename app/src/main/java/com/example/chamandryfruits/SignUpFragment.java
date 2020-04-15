@@ -2,6 +2,7 @@ package com.example.chamandryfruits;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -14,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,11 +28,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.nio.file.StandardWatchEventKinds;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -46,14 +54,15 @@ public class SignUpFragment extends Fragment {
     private EditText signUpName;
     private EditText signUpPassword;
     private EditText signUpConfirmPassword;
-
     private Button signUp;
     private ImageButton close;
-
     private ProgressBar progressBar;
-
     private FirebaseAuth firebaseAuth;
     private String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+.[a-z]+";
+
+    String userId;
+    private FirebaseFirestore firebaseFirestore;
+
 
     public SignUpFragment() {
         // Required empty public constructor
@@ -80,6 +89,7 @@ public class SignUpFragment extends Fragment {
         progressBar = view.findViewById(R.id.signup_progressBar);
 
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         return view;
     }
@@ -182,7 +192,7 @@ public class SignUpFragment extends Fragment {
     private void ChechkInputs(){
         if(!TextUtils.isEmpty(signUpEmail.getText())){
             if(!TextUtils.isEmpty(signUpName.getText())){
-                if(!TextUtils.isEmpty(signUpPassword.getText()) && signUpPassword.length() >= 8){
+                if(!TextUtils.isEmpty(signUpPassword.getText())){
                     if(!TextUtils.isEmpty(signUpConfirmPassword.getText())){
                         signUp.setEnabled(true);
                         signUp.setTextColor(Color.rgb(255,255,255));
@@ -208,38 +218,68 @@ public class SignUpFragment extends Fragment {
         }
     }
     private void CheckEmailAndPassword(){
+        Drawable customErrorIcon = getResources().getDrawable(R.mipmap.custom_error_icon);
+        customErrorIcon.setBounds(0,0,customErrorIcon.getIntrinsicWidth(),customErrorIcon.getIntrinsicHeight());
+
         if(signUpEmail.getText().toString().matches(emailPattern)){
-            if(signUpPassword.getText().toString().equals(signUpConfirmPassword.getText().toString())){
-                progressBar.setVisibility(View.VISIBLE);
-                signUp.setEnabled(false);
-                signUp.setTextColor(Color.argb(50,255,255,255));
+            if(signUpPassword.getText().toString().equals(signUpConfirmPassword.getText().toString())) {
+                if (signUpPassword.length() >= 8) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    signUp.setEnabled(false);
+                    signUp.setTextColor(Color.argb(50, 255, 255, 255));
 
 
-                firebaseAuth.createUserWithEmailAndPassword(signUpEmail.getText().toString(),signUpPassword.getText().toString())
+                    firebaseAuth.createUserWithEmailAndPassword(signUpEmail.getText().toString(), signUpPassword.getText().toString())
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                             @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if(task.isSuccessful()) {
-                                    Intent intent = new Intent(getContext(), Home.class);
-                                    startActivity(intent);
-                                    Objects.requireNonNull(getActivity()).finish();
-                                }
-                                else {
+                            public void onComplete(@NonNull final Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    Map<Object, String > userData = new HashMap<>();
+                                    userData.put("fullName", signUpName.getText().toString());
+                                    userId = firebaseAuth.getUid();
+                                    DocumentReference documentReference = firebaseFirestore.collection("Users").document(userId);
+
+                                    documentReference.set(userData)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d("on success is called ",userId);
+                                            Intent intent = new Intent(getContext(), Home.class);
+                                            startActivity(intent);
+                                            Objects.requireNonNull(getActivity()).finish();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            progressBar.setVisibility(View.VISIBLE);
+                                            String error = Objects.requireNonNull(task.getException()).toString();
+                                            Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                                            signUp.setEnabled(true);
+                                            signUp.setTextColor(Color.rgb(255, 255, 255));
+                                        }
+                                    });
+
+                                } else {
                                     progressBar.setVisibility(View.VISIBLE);
                                     String error = Objects.requireNonNull(task.getException()).toString();
-                                    Toast.makeText(getContext(),error,Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                                     signUp.setEnabled(true);
-                                    signUp.setTextColor(Color.rgb(255,255,255));
+                                    signUp.setTextColor(Color.rgb(255, 255, 255));
                                 }
                             }
                         });
+                }
+                else{
+                    signUpPassword.setError("Password must be more than 8 Characters!", customErrorIcon);
+                }
             }
             else{
-               signUpConfirmPassword.setError("Password Does not match!");
+               signUpConfirmPassword.setError("Password Does not match!", customErrorIcon);
             }
         }else{
-            signUpEmail.setError("Invalid Email!");
+            signUpEmail.setError("Invalid Email!", customErrorIcon);
         }
     }
 
