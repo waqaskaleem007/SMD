@@ -171,14 +171,20 @@ public class SignUpFragment extends Fragment {
             }
         });
 
-
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 CheckEmailAndPassword();
             }
         });
-
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(),Home.class);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
