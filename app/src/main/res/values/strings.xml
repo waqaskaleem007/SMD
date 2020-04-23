@@ -47,4 +47,6 @@
     <string name="sign_out">Sign Out</string>
     <string name="home_appliances">Home Appliances</string>
     <string name="to_add_the_image_of_user">to add the image of user</string>
+    <string name="deals_of_the_day">Deals of the day</string>
+    <string name="view_all">View All</string>
 </resources>
