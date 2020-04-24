@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/slider_background"
-    android:elevation="5dp"
+    android:elevation="3dp"
     android:layout_margin="8dp"
     android:paddingBottom="8dp"
     android:layout_height="wrap_content"

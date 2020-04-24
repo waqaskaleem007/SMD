@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,6 +54,14 @@ public class HomeFragment extends Fragment {
     private Button horizontalViewAllButton;
     private RecyclerView horizontalRecyclerView;
     ////Horizontal Product Layout
+
+    ////Grid Product layout
+    private TextView gridLayoutTitle;
+    private Button gridLayoutButton;
+    private GridView gridlayoutGridView;
+    ////Grid Product layout
+
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -186,6 +195,16 @@ public class HomeFragment extends Fragment {
 
         ///Horizontal view Layout
 
+        ////Grid Product layout
+        gridLayoutTitle = view.findViewById(R.id.grid_product_layout_title);
+        gridLayoutButton = view.findViewById(R.id.grid_product_layout_viewall_button);
+        gridlayoutGridView = view.findViewById(R.id.grid_product_layout_girdview);
+
+        GridProductLayoutAdapter gridProductLayoutAdapter = new GridProductLayoutAdapter(horizontalProductScrollModels);
+        gridlayoutGridView.setAdapter(gridProductLayoutAdapter);
+        gridProductLayoutAdapter.notifyDataSetChanged();
+
+        ////Grid Product layout
 
 
 
