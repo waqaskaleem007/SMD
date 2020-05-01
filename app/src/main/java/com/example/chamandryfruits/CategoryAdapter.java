@@ -1,6 +1,7 @@
 package com.example.chamandryfruits;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
         String icon = categoryModelList.get(position).getCategoryIconLink();
         String name = categoryModelList.get(position).getCategoryName().toString();
 
-        holder.setCategoryName(name);
+        holder.setCategoryName(name, position);
     }
 
     @Override
@@ -53,8 +54,18 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.ViewHo
             this.categoryIcon = categoryIcon;
         }
 
-        public void setCategoryName(String categoryName) {
+        public void setCategoryName(final String categoryName, final int position) {
             this.categoryName.setText(categoryName);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(position != 0) {
+                        Intent categoryIntent = new Intent(itemView.getContext(), CategoryActivity.class);
+                        categoryIntent.putExtra("CategoryName", categoryName);
+                        itemView.getContext().startActivity(categoryIntent);
+                    }
+                }
+            });
         }
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
 
 public class GridProductLayoutAdapter extends BaseAdapter {
 
-    List<HorizontalProductScrollModel> horizontalProductScrollModelList = new ArrayList<HorizontalProductScrollModel>();
+    private List<HorizontalProductScrollModel> horizontalProductScrollModelList = new ArrayList<HorizontalProductScrollModel>();
 
     public GridProductLayoutAdapter(List<HorizontalProductScrollModel> horizontalProductScrollModelList) {
         this.horizontalProductScrollModelList = horizontalProductScrollModelList;
