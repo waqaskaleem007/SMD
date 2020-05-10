@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Assignment2</string>
+    <string name="add">Add</string>
+    <string name="add_url_to_extract_data">Add Url To extract data</string>
 
     <string-array name="Students">
         <item>waqas</item>

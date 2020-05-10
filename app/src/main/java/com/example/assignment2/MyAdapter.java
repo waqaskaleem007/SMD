@@ -82,7 +82,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mDisplayedValues.size();
+        if(mDisplayedValues != null) {
+            return mDisplayedValues.size();
+        }else{
+            return 0;
+        }
+
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements onStudentListener, View.OnClickListener {

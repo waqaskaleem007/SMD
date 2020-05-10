@@ -63,8 +63,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     public Cursor getAllStudents(){
         SQLiteDatabase db = getWritableDatabase();
-        Cursor res = db.rawQuery("SELECT * FROM Student",null);
-        return res;
+        return db.rawQuery("SELECT * FROM Student",null);
     }
 
 

@@ -8,13 +8,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.Parcelable;
+import android.os.RemoteException;
 import android.util.Log;
+import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,14 +32,23 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParser;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements MyAdapter.onStudentListener {
+public class MainActivity extends AppCompatActivity implements MyAdapter.onStudentListener, AlertDialog.AlertDialogListener {
 
     //String students[];
     DataBaseHelper myDb;
@@ -43,6 +61,15 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
 
     CheckBox checkBox;
 
+    //code for the sender side
+
+    importExportSyncService dataService;
+    Messenger messenger;
+    //Messenger incomingMessenger = new Messenger(new IncomingHandler());
+    boolean bound = false;
+
+    //code for the sender side
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
         myDb = new DataBaseHelper(this);
 
         if(savedInstanceState == null) {
-            AddStudent();
+            //AddStudent();
             students = getAllStudents();
 
         }
@@ -86,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
                         checkBox.setChecked(false);
                     }else
                         checkBox.setChecked(true);
-                }
+                    }
             }
         };
 
@@ -115,11 +142,10 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
 
             }
         });
+
+        startDataSyncService();
+
     }
-
-
-
-
 
     @Override
     public  boolean onCreateOptionsMenu(Menu menu) {
@@ -128,8 +154,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
         MenuItem menuItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) menuItem.getActionView();
         searchView.setQueryHint("Search Student");
-
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -144,11 +168,98 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
             }
         });
 
+        MenuItem importData = menu.findItem(R.id.import_data);
+        importData.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                OpenDialogImport();
+                return false;
+            }
+        });
+
+        MenuItem exportData = menu.findItem(R.id.export_data);
+        exportData.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                OpenDialogExport();
+                return false;
+            }
+        });
 
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void OpenDialogImport(){
+        AlertDialog alertDialog = new AlertDialog();
+        alertDialog.show(getSupportFragmentManager(),"Import");
+        AlertDialog.name = "Import Data";
 
+    }
+    private void OpenDialogExport(){
+        AlertDialog alertDialog = new AlertDialog();
+        alertDialog.show(getSupportFragmentManager(),"Export");
+        AlertDialog.name = "Export Data";
+
+    }
+
+    @Override
+    public void ApplyText(String url, int type) {
+        //////the code to invoke the import Export process services
+        if(type == 1) {                 // type to specify the import and export
+            Message message = Message.obtain(null, 1);
+            // may send some data along in form of Bundle
+            try {
+                Bundle bundle = new Bundle();
+                bundle.putString("url", url);
+                message.setData(bundle);
+                messenger.send(message);
+            }
+            catch (RemoteException ignored) { }
+        }
+        else{
+            Message message = Message.obtain(null, 2);
+            // may send some data along in form of Bundle
+            try {
+                Bundle bundle = new Bundle();
+                bundle.putString("url", url);
+                message.setData(bundle);
+                messenger.send(message);
+            }
+            catch (RemoteException ignored) { }
+        }
+        students = getAllStudents();
+    }
+
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            messenger = new Messenger(service);
+            Message message = Message.obtain(null,0);
+            // may send some data along in form of Bundle
+            try {
+                messenger.send(message);
+            } catch (RemoteException ignored) { }
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
+    private void startDataSyncService(){
+        SharedPreferences preferences = getSharedPreferences("service",Context.MODE_PRIVATE);
+        boolean started = preferences.getBoolean("started",false);
+        SharedPreferences.Editor editor = preferences.edit();
+
+        Intent serviceIntent = new Intent(this,importExportSyncService.class);
+        startService(serviceIntent);
+
+        editor.putBoolean("started",true);
+        editor.apply();
+
+    }
     private void filter(String text) {
         ArrayList<Student> filteredList = new ArrayList<>();
 
@@ -160,22 +271,21 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
 
         myAdapter.filterList(filteredList);
     }
-
-
     public void AddStudent(){
         String name;
         for(int i=0; i<25; i++){
-            name = randomIdentifier();
-            boolean isInserted =  myDb.insertData(name,"17L-4000");
-            if(isInserted){
-                Toast.makeText(MainActivity.this,name,Toast.LENGTH_LONG).show();
+            if(i==0) {
+                name = "Abdullah";
             }
-            else{
-                Toast.makeText(MainActivity.this,"not entered",Toast.LENGTH_SHORT).show();
+            else {
+                name = randomIdentifier();
             }
-        }
-    }
+            boolean isInserted = myDb.insertData(name, "17L-4000");
 
+        }
+
+
+    }
     public String randomIdentifier() {
         StringBuilder builder = new StringBuilder();
         while(builder.toString().length() == 0) {
@@ -190,9 +300,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
         }
         return builder.toString();
     }
-
-
-
     public ArrayList<Student> getAllStudents(){
         ArrayList<Student> st = new ArrayList<>();
         Cursor res = myDb.getAllStudents();
@@ -211,8 +318,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
         return st;
     }
 
-
-
     @Override
     public void onStudentClick(int position) {
         students.get(position).setPresent(true);
@@ -220,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
         Log.d(TAG, "onStudentClick: clicked" + position);
         Toast.makeText(this,"onStudentClicked", Toast.LENGTH_LONG).show();
     }
-
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle savedInstanceState){
@@ -230,10 +334,26 @@ public class MainActivity extends AppCompatActivity implements MyAdapter.onStude
     }
 
 
+    protected void onStart(){
+        super.onStart();
+        students = getAllStudents();
+        Intent intent = new Intent(this,importExportSyncService.class);
+        bindService(intent,connection, Context.BIND_AUTO_CREATE);
+    }
+    protected void onStop(){
+        super.onStop();
+        if(bound){
+            unbindService(connection);
+        }
+    }
+
+
     @Override
     protected void onDestroy() {
         myDb.deleteData();
         super.onDestroy();
 
     }
+
+
 }
