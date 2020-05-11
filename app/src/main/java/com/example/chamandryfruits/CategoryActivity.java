@@ -36,23 +36,19 @@ public class CategoryActivity extends AppCompatActivity {
 
         ////Banner slider Code
         List<SliderModel> sliderModels = new ArrayList<SliderModel>();
-        sliderModels.add(new SliderModel(R.mipmap.home_icon,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.my_orders,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_5,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_6,"#077AE4"));
 
         sliderModels.add(new SliderModel(R.mipmap.banner,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.group_375,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.add_user,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.bell,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.custom_error_icon,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.forgot_password_image,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.app_icon,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.logo,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.cart_black,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.home_icon,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.my_orders,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_1,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_2,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_3,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_4,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_5,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_6,"#077AE4"));
 
         sliderModels.add(new SliderModel(R.mipmap.banner,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.group_375,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_1,"#077AE4"));
 
         ////Banner slider Code
 
@@ -61,13 +57,12 @@ public class CategoryActivity extends AppCompatActivity {
 
         List<HorizontalProductScrollModel> horizontalProductScrollModels = new ArrayList<>();
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.phone_image,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.add_user,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.cart_black,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.logo,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.bell,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.add_user_2,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.forgot_password_image,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.ic_launcher,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.handfree,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.sofa,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.jacket,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.download,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.book,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
 
         ///Horizontal view Layout
 

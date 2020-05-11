@@ -50,4 +50,13 @@
     <string name="deals_of_the_day">Deals of the day</string>
     <string name="trending">Trending</string>
     <string name="view_all">View All</string>
+    <string name="product_title">Product Title</string>
+    <string name="total_ratings">Total Ratings</string>
+    <string name="check_price_after_coupon_redemption">Check price after coupon redemption</string>
+    <string name="redeem">Redeem</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="specification">Specification</string>
+    <string name="other_details">Other details</string>
+    <string name="product_details">Product Details</string>
 </resources>

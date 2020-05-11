@@ -1,5 +1,6 @@
 package com.example.chamandryfruits;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,12 +59,20 @@ public class HorizontalProductScrollAdapter extends RecyclerView.Adapter<Horizon
         TextView productTitle;
         TextView productDesc;
         TextView productPrice;
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             productImage = itemView.findViewById(R.id.h_s_product_image);
             productTitle = itemView.findViewById(R.id.h_s_product_name);
             productDesc = itemView.findViewById(R.id.h_s_product_desc);
             productPrice = itemView.findViewById(R.id.h_s_product_price);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent productDetailsIntent = new Intent(itemView.getContext(), ProductDetailsActivity.class);
+                    itemView.getContext().startActivity(productDetailsIntent);
+                }
+            });
         }
 
         public void setProductImage(int productImage) {

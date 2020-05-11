@@ -5,4 +5,5 @@
     <color name="colorAccent">#ffffff</color>
     <color name="buttonRed">#9f0000</color>
     <color name="successfulGreen">#11A10C</color>
+    <color name="transparent">#00000000</color>
 </resources>
