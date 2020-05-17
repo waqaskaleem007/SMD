@@ -6,4 +6,5 @@
     <color name="buttonRed">#9f0000</color>
     <color name="successfulGreen">#11A10C</color>
     <color name="transparent">#00000000</color>
+    <color name="greyBackground">#d6d6d6</color>
 </resources>

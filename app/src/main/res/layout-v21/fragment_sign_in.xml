@@ -172,6 +172,7 @@
             android:layout_marginRight="18dp"
             android:layout_marginBottom="173dp"
             android:background="#00FFFFFF"
+            android:tint="@color/colorAccent"
             android:src="@android:drawable/ic_menu_close_clear_cancel"
             app:layout_constraintBottom_toTopOf="@+id/sign_in_email"
             app:layout_constraintEnd_toEndOf="parent"

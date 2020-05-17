@@ -185,6 +185,7 @@
             android:layout_height="30dp"
             android:background="@drawable/border_background"
             android:text="@string/redeem"
+            android:layout_marginRight="16dp"
             android:textColor="@color/colorAccent"
             android:textSize="12sp" />
 

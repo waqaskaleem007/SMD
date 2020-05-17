@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -32,6 +34,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private static boolean ALREADY_ADDED_TO_WISHLIST = false;
     private ViewPager productDetailsViewpager;
     private TabLayout productDetailsTabLayout;
+
+    ////////rating layout
+
+    private LinearLayout rateNowContainer;
+
+    ////////rating layout
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -97,10 +105,39 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         });
 
+        ////////rating layout
+
+        rateNowContainer = findViewById(R.id.ratenow_container);
+
+        for(int i=0; i<rateNowContainer.getChildCount(); i++){
+            final int starPosition = i;
+            rateNowContainer.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onClick(View v) {
+                    SetRating(starPosition);
+                }
+            });
+        }
+
+        ////////rating layout
+
 
 
 
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void SetRating(int starPosition){
+        for(int i=0; i<rateNowContainer.getChildCount(); i++){
+            ImageView starButton = (ImageView) rateNowContainer.getChildAt(i);
+            starButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#bebebe")));
+            if(i <= starPosition){
+                starButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ffbb00")));
+            }
+        }
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {

@@ -1,12 +1,16 @@
 package com.example.chamandryfruits;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +38,24 @@ public class GridProductLayoutAdapter extends BaseAdapter {
         return 0;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, final ViewGroup parent) {
         View view;
         if(convertView == null){
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.horizontal_scroll_item_layout, null);
             view.setElevation(0);
             view.setBackgroundColor(Color.parseColor("#ffffff"));
+
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent productDetailIntent = new Intent(parent.getContext(), ProductDetailsActivity.class);
+                    parent.getContext().startActivity(productDetailIntent);
+                }
+            });
+
+
 
             ImageView productImage = view.findViewById(R.id.h_s_product_image);
             TextView productTitle = view.findViewById(R.id.h_s_product_name);

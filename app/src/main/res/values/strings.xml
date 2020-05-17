@@ -59,4 +59,14 @@
     <string name="specification">Specification</string>
     <string name="other_details">Other details</string>
     <string name="product_details">Product Details</string>
+    <string name="ratings">Ratings</string>
+    <string name="your_ratings">Your Ratings</string>
+    <string name="add_to_cart">Add To Cart</string>
+    <string name="buy_now">Buy Now</string>
+    <string name="offers_applied">Offers Applied</string>
+    <string name="coupons_applied">Coupons Applied</string>
+    <string name="remove_item">Remove Item</string>
+    <string name="price_details">PRICE DETAILS</string>
+    <string name="_49999">49999/-</string>
+    <string name="shipping_details">SHIPPING DETAILS</string>
 </resources>
