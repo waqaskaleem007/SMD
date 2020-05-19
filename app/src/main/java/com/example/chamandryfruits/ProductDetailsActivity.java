@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -24,6 +25,8 @@ import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.example.chamandryfruits.Home.showCart;
 
 public class ProductDetailsActivity extends AppCompatActivity {
 
@@ -41,6 +44,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     ////////rating layout
 
+    private Button buyNowButton;
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
         addToWishListButton = findViewById(R.id.add_to_wishlist_button);
         productDetailsViewpager = findViewById(R.id.product_details_viewpager);
         productDetailsTabLayout = findViewById(R.id.product_details_tab_layout);
+
+        buyNowButton = findViewById(R.id.buy_now_button);
 
         List<Integer> productImages = new ArrayList<>();
         productImages.add(R.mipmap.phone_image);
@@ -122,7 +129,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         ////////rating layout
 
-
+        buyNowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
+                startActivity(deliveryIntent);
+            }
+        });
 
 
     }
@@ -150,6 +163,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
             return true;
         }
         else if(id == R.id.main_cart_icon){
+            Intent cartIntent = new Intent(ProductDetailsActivity.this, Home.class);
+            showCart = true;
+            startActivity(cartIntent);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -162,6 +178,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.search_and_cart_icon, menu);
+
         return true;
     }
 

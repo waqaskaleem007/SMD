@@ -63,6 +63,8 @@ public class CategoryActivity extends AppCompatActivity {
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.download,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.book,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
 
         ///Horizontal view Layout
 

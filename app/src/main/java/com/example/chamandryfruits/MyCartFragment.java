@@ -1,7 +1,10 @@
 package com.example.chamandryfruits;
 
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,9 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -20,6 +25,7 @@ import java.util.List;
 public class MyCartFragment extends Fragment {
 
     private RecyclerView cartItemRecyclerView;
+    private Button Continue;
 
     public MyCartFragment() {
         // Required empty public constructor
@@ -33,10 +39,7 @@ public class MyCartFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_my_cart, container, false);
 
         cartItemRecyclerView = view.findViewById(R.id.cart_items_recyclerview);
-
-
-
-
+        Continue = view.findViewById(R.id.cart_continue_btn);
 
         List<CartItemModel> cartItemModelList = new ArrayList<>();
         cartItemModelList.add(new CartItemModel(0, R.mipmap.phone2, "Pixel 2", 3, "Rs.49999/-",3,2,"Rs.59999/-",0));
@@ -55,6 +58,14 @@ public class MyCartFragment extends Fragment {
         cartItemRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
+        Continue.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onClick(View v) {
+                Intent deliveryIntent = new Intent(getContext(),AddAddressActivity.class);
+                Objects.requireNonNull(getContext()).startActivity(deliveryIntent);
+            }
+        });
 
         return view;
     }

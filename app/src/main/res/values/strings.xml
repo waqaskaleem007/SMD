@@ -69,4 +69,24 @@
     <string name="price_details">PRICE DETAILS</string>
     <string name="_49999">49999/-</string>
     <string name="shipping_details">SHIPPING DETAILS</string>
+    <string name="free_coupons">Free coupons</string>
+    <string name="rs_49999">Rs.49999/-</string>
+    <string name="rs_59999">Rs.59999/-</string>
+    <string name="cash_on_delivery_available">Cash on delivery Available</string>
+    <string name="discount_coupon">Discount coupon</string>
+    <string name="till_10_june_2020">till 10th june 2020</string>
+    <string name="ali_rehmat">Ali Rehmat</string>
+    <string name="ali_rehmat_gmail_com">Ali.rehmat@gmail.com</string>
+    <string name="your_current_order_status">Your Current Order Status</string>
+    <string name="out_of_order">OUT FOR DELIVERY</string>
+    <string name="your_recent_orders">Your Recent Orders</string>
+    <string name="my_addresses">My Addresses</string>
+    <string name="address">Address</string>
+    <string name="pincode">Pincode</string>
+    <string name="change_or_add_new_address">Change or Add New address</string>
+    <string name="shipping_address">Shipping Address</string>
+    <string name="ali_rizwan">Ali Rizwan</string>
+    <string name="deliver_here">Deliver here</string>
+    <string name="edit">Edit</string>
+    <string name="remove">Remove</string>
 </resources>

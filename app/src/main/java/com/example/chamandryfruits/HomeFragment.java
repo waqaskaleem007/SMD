@@ -72,32 +72,29 @@ public class HomeFragment extends Fragment {
 
         ////Banner slider Code
         List<SliderModel> sliderModels = new ArrayList<SliderModel>();
-        sliderModels.add(new SliderModel(R.mipmap.banner_3,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_2,"#077AE4"));
 
-        sliderModels.add(new SliderModel(R.mipmap.banner,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_1,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_6,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_5,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_4,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_3,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_2,"#077AE4"));
-
-        sliderModels.add(new SliderModel(R.mipmap.banner,"#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_1,"#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner, "#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_1, "#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_6, "#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_5, "#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_4, "#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_3, "#077AE4"));
+        sliderModels.add(new SliderModel(R.mipmap.banner_2, "#077AE4"));
         ////Banner slider Code
 
 
         ///Horizontal view Layout
 
         List<HorizontalProductScrollModel> horizontalProductScrollModels = new ArrayList<>();
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.phone_image,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.book,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.sofa,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.jacket,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.handfree,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.download,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
-        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights,"Redmi 5A", "SnapDragon 425 Processor","5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.phone_image, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.book, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.sofa, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.jacket, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.handfree, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.download, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
+        horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
 
         ///Horizontal view Layout
 
@@ -108,18 +105,18 @@ public class HomeFragment extends Fragment {
         testing.setLayoutManager(testingLinearLayout);
 
         List<HomePageModel> homePageModelList = new ArrayList<>();
-        homePageModelList.add(new HomePageModel(sliderModels,0));
-        homePageModelList.add(new HomePageModel(1,R.drawable.strip_ad,"#000000"));
+        homePageModelList.add(new HomePageModel(sliderModels, 0));
+        homePageModelList.add(new HomePageModel(1, R.drawable.strip_ad, "#000000"));
         homePageModelList.add(new HomePageModel(2, "Deals of the day", horizontalProductScrollModels));
         homePageModelList.add(new HomePageModel(3, "Trending on store", horizontalProductScrollModels));
 
-        homePageModelList.add(new HomePageModel(sliderModels,0));
-        homePageModelList.add(new HomePageModel(1,R.drawable.strip_ad,"#000000"));
+        homePageModelList.add(new HomePageModel(sliderModels, 0));
+        homePageModelList.add(new HomePageModel(1, R.drawable.strip_ad, "#000000"));
         homePageModelList.add(new HomePageModel(2, "Deals of the day", horizontalProductScrollModels));
         //homePageModelList.add(new HomePageModel(3, "Trending on store", horizontalProductScrollModels));
 
-        homePageModelList.add(new HomePageModel(sliderModels,0));
-        homePageModelList.add(new HomePageModel(1,R.drawable.strip_ad,"#000000"));
+        homePageModelList.add(new HomePageModel(sliderModels, 0));
+        homePageModelList.add(new HomePageModel(1, R.drawable.strip_ad, "#000000"));
         homePageModelList.add(new HomePageModel(2, "meals of the day", horizontalProductScrollModels));
 //        homePageModelList.add(new HomePageModel(3, "Super Trending on store", horizontalProductScrollModels));
 
@@ -128,9 +125,6 @@ public class HomeFragment extends Fragment {
         homePageAdapter.notifyDataSetChanged();
 
         /////Testing recycler view
-
-
-
 
 
         return view;

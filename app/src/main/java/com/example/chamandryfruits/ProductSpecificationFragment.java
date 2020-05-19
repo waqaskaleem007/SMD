@@ -19,8 +19,6 @@ import java.util.List;
  */
 public class ProductSpecificationFragment extends Fragment {
 
-    private RecyclerView productSpecificationRecyclerView;
-
     public ProductSpecificationFragment() {
         // Required empty public constructor
     }
@@ -32,7 +30,7 @@ public class ProductSpecificationFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_product_specification, container, false);
 
-        productSpecificationRecyclerView = view.findViewById(R.id.product_specification_recyclerview);
+        RecyclerView productSpecificationRecyclerView = view.findViewById(R.id.product_specification_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
