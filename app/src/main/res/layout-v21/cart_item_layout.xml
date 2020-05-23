@@ -120,9 +120,10 @@
         android:layout_marginLeft="16dp"
         android:background="@drawable/border_background"
         android:backgroundTint="#000000"
-        android:text="Qty: 1"
+        android:text="Qty: 1 "
+        android:padding="3dp"
         android:textColor="#000000"
-        android:drawableStart="@mipmap/drop_down_arrow"
+        android:drawableEnd="@mipmap/drop_down_arrow"
         app:layout_constraintBottom_toBottomOf="@+id/coupons_applied"
         app:layout_constraintStart_toEndOf="@+id/product_image"
         app:layout_constraintTop_toBottomOf="@+id/cutted_price" />

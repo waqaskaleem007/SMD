@@ -89,4 +89,10 @@
     <string name="deliver_here">Deliver here</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
+    <string name="just_few_steps_away_from_your_cart">Just few steps away from your cart</string>
+    <string name="quantity">Quantity</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="original_price">Original Price</string>
+    <string name="price_after_coupon_redemption">Price After Coupon Redemption</string>
 </resources>

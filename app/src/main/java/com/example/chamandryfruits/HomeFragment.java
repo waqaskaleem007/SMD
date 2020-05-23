@@ -2,8 +2,11 @@ package com.example.chamandryfruits;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -11,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,9 +23,17 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -34,6 +46,8 @@ public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
     private CategoryAdapter categoryAdapter;
     private RecyclerView testing;
+    private List<CategoryModel> categoryModels;
+    private FirebaseFirestore firebaseFirestore;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -52,23 +66,31 @@ public class HomeFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         recyclerView.setLayoutManager(layoutManager);
-        List<CategoryModel> categoryModels = new ArrayList<CategoryModel>();
-        categoryModels.add(new CategoryModel("link", "Home"));
-        categoryModels.add(new CategoryModel("link", "Electronics"));
-        categoryModels.add(new CategoryModel("link", "Furniture"));
-        categoryModels.add(new CategoryModel("link", "Appliances"));
-        categoryModels.add(new CategoryModel("link", "Fashion"));
-        categoryModels.add(new CategoryModel("link", "Mobiles"));
-        categoryModels.add(new CategoryModel("link", "Appliances"));
-        categoryModels.add(new CategoryModel("link", "Fashion"));
-        categoryModels.add(new CategoryModel("link", "Mobiles"));
-        categoryModels.add(new CategoryModel("link", "Appliances"));
-        categoryModels.add(new CategoryModel("link", "Fashion"));
-        categoryModels.add(new CategoryModel("link", "Mobiles"));
+        categoryModels = new ArrayList<CategoryModel>();
 
-        CategoryAdapter categoryAdapter = new CategoryAdapter(categoryModels);
+        final CategoryAdapter categoryAdapter = new CategoryAdapter(categoryModels);
         recyclerView.setAdapter(categoryAdapter);
-        categoryAdapter.notifyDataSetChanged();
+
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseFirestore.collection("CATEGORIES").orderBy("index").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot documentSnapshot : Objects.requireNonNull(task.getResult())) {
+                                categoryModels.add(new CategoryModel(Objects.requireNonNull(documentSnapshot.get("icon")).toString(), Objects.requireNonNull(documentSnapshot.get("categoryName")).toString()));
+                            }
+                            categoryAdapter.notifyDataSetChanged();
+                        } else {
+                            String error = task.getException().getMessage();
+                            Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                            Log.d("into category error", error);
+                        }
+                    }
+                });
+
+
 
         ////Banner slider Code
         List<SliderModel> sliderModels = new ArrayList<SliderModel>();

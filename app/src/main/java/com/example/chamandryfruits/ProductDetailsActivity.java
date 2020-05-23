@@ -4,9 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -15,9 +18,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -37,6 +42,16 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private static boolean ALREADY_ADDED_TO_WISHLIST = false;
     private ViewPager productDetailsViewpager;
     private TabLayout productDetailsTabLayout;
+    private Button couponRedeemButton;
+
+    ////coupon Dialog
+    public static TextView couponTitle;
+    public static TextView couponBody;
+    public static TextView couponExpiryDate;
+    private static RecyclerView couponsRecyclerView;
+    private static LinearLayout selectedCoupon;
+    ////coupon Dialog
+
 
     ////////rating layout
 
@@ -63,6 +78,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         productDetailsTabLayout = findViewById(R.id.product_details_tab_layout);
 
         buyNowButton = findViewById(R.id.buy_now_button);
+        couponRedeemButton = findViewById(R.id.coupon_reedemption_button);
 
         List<Integer> productImages = new ArrayList<>();
         productImages.add(R.mipmap.phone_image);
@@ -73,24 +89,23 @@ public class ProductDetailsActivity extends AppCompatActivity {
         ProductImagesAdapter productImagesAdapter = new ProductImagesAdapter(productImages);
         productImagesViewPager.setAdapter(productImagesAdapter);
 
-        viewPagerIndicator.setupWithViewPager(productImagesViewPager,true);
+        viewPagerIndicator.setupWithViewPager(productImagesViewPager, true);
 
 
         addToWishListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(ALREADY_ADDED_TO_WISHLIST){
+                if (ALREADY_ADDED_TO_WISHLIST) {
                     ALREADY_ADDED_TO_WISHLIST = false;
                     addToWishListButton.setSupportImageTintList(ColorStateList.valueOf(Color.parseColor("#9f9f9f")));
-                }
-                else {
+                } else {
                     ALREADY_ADDED_TO_WISHLIST = true;
                     addToWishListButton.setSupportImageTintList(getResources().getColorStateList(R.color.colorPrimary));
                 }
             }
         });
 
-        ProductDetailsAdapter productDetailsAdapter = new ProductDetailsAdapter(getSupportFragmentManager(),0,productDetailsTabLayout.getTabCount());
+        final ProductDetailsAdapter productDetailsAdapter = new ProductDetailsAdapter(getSupportFragmentManager(), 0, productDetailsTabLayout.getTabCount());
         productDetailsViewpager.setAdapter(productDetailsAdapter);
         productDetailsViewpager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(productDetailsTabLayout));
         productDetailsTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -116,7 +131,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         rateNowContainer = findViewById(R.id.ratenow_container);
 
-        for(int i=0; i<rateNowContainer.getChildCount(); i++){
+        for (int i = 0; i < rateNowContainer.getChildCount(); i++) {
             final int starPosition = i;
             rateNowContainer.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -137,15 +152,77 @@ public class ProductDetailsActivity extends AppCompatActivity {
             }
         });
 
+        ///coupon Dialog
+        final Dialog checkCouponPriceDialog = new Dialog(ProductDetailsActivity.this);
+        checkCouponPriceDialog.setContentView(R.layout.coupon_redeem_dialog);
+        checkCouponPriceDialog.setCancelable(true);
+        checkCouponPriceDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ImageView toggleRecyclerCouponView = checkCouponPriceDialog.findViewById(R.id.toggle_recycler_view);
+        couponsRecyclerView = checkCouponPriceDialog.findViewById(R.id.coupons_recyclerView);
+        selectedCoupon = checkCouponPriceDialog.findViewById(R.id.selected_coupon);
+
+        couponTitle = checkCouponPriceDialog.findViewById(R.id.rewards_coupon_title);
+        couponBody = checkCouponPriceDialog.findViewById(R.id.rewards_coupon_body);
+        couponExpiryDate = checkCouponPriceDialog.findViewById(R.id.rewards_coupon_validity);
+
+        TextView originalPrice = checkCouponPriceDialog.findViewById(R.id.original_price);
+        TextView discountedPrice = checkCouponPriceDialog.findViewById(R.id.disconunted_price);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(ProductDetailsActivity.this);
+        layoutManager.setOrientation(RecyclerView.VERTICAL);
+        couponsRecyclerView.setLayoutManager(layoutManager);
+
+        List<RewardsModel> rewardsModels = new ArrayList<>();
+        rewardsModels.add(new RewardsModel("Discount", "till 24th june 2020", "50% discount on each item"));
+        rewardsModels.add(new RewardsModel("Free", "till 25th june 2020", "Get 20% off on any product above Rs.500/- and below Rs.2500/-"));
+        rewardsModels.add(new RewardsModel("Discount", "till 26th june 2020", "50% discount on each item"));
+        rewardsModels.add(new RewardsModel("Free", "till 27th june 2020", "Get 20% off on any product above Rs.5500/- and below Rs.9500/-"));
+        rewardsModels.add(new RewardsModel("Cashback", "till 28th june 2020", "50% discount on each item"));
+        rewardsModels.add(new RewardsModel("Discount", "till 29th june 2020", "Get 20% off on any product above Rs.1500/- and below Rs.3500/-"));
+        rewardsModels.add(new RewardsModel("Cashback", "till 30th june 2020", "50% discount on each item"));
+        rewardsModels.add(new RewardsModel("Discount", "till 31th june 2020", "Get 20% off on any product above Rs.5200/- and below Rs.2500/-"));
+        rewardsModels.add(new RewardsModel("Free", "till 1st june 2020", "Buy one get one free"));
+        rewardsModels.add(new RewardsModel("Discount", "till 4th june 2020", "Get 20% off on any product above Rs.5300/- and below Rs.25030/-"));
+
+        MyRewardsAdapter myRewardsAdapter = new MyRewardsAdapter(rewardsModels, true);
+        couponsRecyclerView.setAdapter(myRewardsAdapter);
+        myRewardsAdapter.notifyDataSetChanged();
+
+        toggleRecyclerCouponView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowDialogRecyclerView();
+            }
+        });
+
+        ///coupon Dialog
+
+        couponRedeemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                checkCouponPriceDialog.show();
+            }
+        });
 
     }
 
+    public static void ShowDialogRecyclerView() {
+        if (couponsRecyclerView.getVisibility() == View.GONE) {
+            couponsRecyclerView.setVisibility(View.VISIBLE);
+            selectedCoupon.setVisibility(View.GONE);
+        } else {
+            couponsRecyclerView.setVisibility(View.GONE);
+            selectedCoupon.setVisibility(View.VISIBLE);
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void SetRating(int starPosition){
-        for(int i=0; i<rateNowContainer.getChildCount(); i++){
+    private void SetRating(int starPosition) {
+        for (int i = 0; i < rateNowContainer.getChildCount(); i++) {
             ImageView starButton = (ImageView) rateNowContainer.getChildAt(i);
             starButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#bebebe")));
-            if(i <= starPosition){
+            if (i <= starPosition) {
                 starButton.setImageTintList(ColorStateList.valueOf(Color.parseColor("#ffbb00")));
             }
         }
@@ -155,14 +232,12 @@ public class ProductDetailsActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id == android.R.id.home){
+        if (id == android.R.id.home) {
             finish();
             return true;
-        }
-        else if(id == R.id.main_search_icon){
+        } else if (id == R.id.main_search_icon) {
             return true;
-        }
-        else if(id == R.id.main_cart_icon){
+        } else if (id == R.id.main_cart_icon) {
             Intent cartIntent = new Intent(ProductDetailsActivity.this, Home.class);
             showCart = true;
             startActivity(cartIntent);
@@ -171,7 +246,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
 
     }
-
 
 
     @Override

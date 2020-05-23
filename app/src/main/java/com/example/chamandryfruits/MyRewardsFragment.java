@@ -48,7 +48,7 @@ public class MyRewardsFragment extends Fragment {
         rewardsModels.add(new RewardsModel("Free","till 1st june 2020","Buy one get one free"));
         rewardsModels.add(new RewardsModel("Discount","till 4th june 2020","Get 20% off on any product above Rs.5300/- and below Rs.25030/-"));
 
-        MyRewardsAdapter myRewardsAdapter = new MyRewardsAdapter(rewardsModels);
+        MyRewardsAdapter myRewardsAdapter = new MyRewardsAdapter(rewardsModels,false);
         rewardsRecyclerView.setAdapter(myRewardsAdapter);
         myRewardsAdapter.notifyDataSetChanged();
 
