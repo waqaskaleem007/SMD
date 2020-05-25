@@ -1,28 +1,19 @@
 package com.example.chamandryfruits;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,8 +25,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -45,9 +34,10 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private CategoryAdapter categoryAdapter;
-    private RecyclerView testing;
+    private RecyclerView homePageRecyclerView;
     private List<CategoryModel> categoryModels;
     private FirebaseFirestore firebaseFirestore;
+    private HomePageAdapter homePageAdapter;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -91,22 +81,14 @@ public class HomeFragment extends Fragment {
                 });
 
 
-
         ////Banner slider Code
-        List<SliderModel> sliderModels = new ArrayList<SliderModel>();
 
-        sliderModels.add(new SliderModel(R.mipmap.banner, "#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_1, "#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_6, "#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_5, "#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_4, "#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_3, "#077AE4"));
-        sliderModels.add(new SliderModel(R.mipmap.banner_2, "#077AE4"));
+
         ////Banner slider Code
 
 
         ///Horizontal view Layout
-
+/*
         List<HorizontalProductScrollModel> horizontalProductScrollModels = new ArrayList<>();
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.phone_image, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.book, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
@@ -118,33 +100,59 @@ public class HomeFragment extends Fragment {
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
         horizontalProductScrollModels.add(new HorizontalProductScrollModel(R.mipmap.weights, "Redmi 5A", "SnapDragon 425 Processor", "5999/-"));
 
+ */
         ///Horizontal view Layout
 
         /////Testing recycler view
-        testing = view.findViewById(R.id.homePage_recyclerView);
+        homePageRecyclerView = view.findViewById(R.id.homePage_recyclerView);
         LinearLayoutManager testingLinearLayout = new LinearLayoutManager(getContext());
         testingLinearLayout.setOrientation(LinearLayoutManager.VERTICAL);
-        testing.setLayoutManager(testingLinearLayout);
+        homePageRecyclerView.setLayoutManager(testingLinearLayout);
+        final List<HomePageModel> homePageModelList = new ArrayList<>();
+        homePageAdapter = new HomePageAdapter(homePageModelList);
+        homePageRecyclerView.setAdapter(homePageAdapter);
 
-        List<HomePageModel> homePageModelList = new ArrayList<>();
-        homePageModelList.add(new HomePageModel(sliderModels, 0));
-        homePageModelList.add(new HomePageModel(1, R.drawable.strip_ad, "#000000"));
-        homePageModelList.add(new HomePageModel(2, "Deals of the day", horizontalProductScrollModels));
-        homePageModelList.add(new HomePageModel(3, "Trending on store", horizontalProductScrollModels));
+        firebaseFirestore.collection("CATEGORIES")
+                .document("Home")
+                .collection("TOP_DEALS").orderBy("index").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d("into the successful", "this is successful");
+                    Log.d("into the for loop", task.getResult().toString());
+                    for (QueryDocumentSnapshot documentSnapshot : Objects.requireNonNull(task.getResult())) {
+                        Log.d("into the for loop", "this is for loop");
+                        long view_type = (long) documentSnapshot.get("view_type");
+                        if (view_type == 0) {
+                            Log.d("into the viewtype", "this is view type");
+                            List<SliderModel> sliderModels = new ArrayList<>();
+                            long noOfBanners = (long) documentSnapshot.get("no_of_banners");
+                            for (long i = 1; i < noOfBanners + 1; i++) {
+                                sliderModels.add(new SliderModel(documentSnapshot.get("banner_" + i).toString(),
+                                        documentSnapshot.get("banner_" + i + "_background").toString()));
+                            }
+                            homePageModelList.add(new HomePageModel(0, sliderModels));
+                        } else if (view_type == 1) {
+                            Log.d("into the viewtype", "this is view type");
+                            homePageModelList.add(new HomePageModel(1, documentSnapshot.get("strip_ad_banner").toString(),
+                                    documentSnapshot.get("background").toString()));
+                        } else if (view_type == 2) {
+                        } else if (view_type == 3) {
+                        } else {
+                            return;
+                        }
+                    }
+                    homePageAdapter.notifyDataSetChanged();
+                } else {
+                    String error = task.getException().getMessage();
+                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                    Log.d("into category error", error);
+                }
+            }
+        });
 
-        homePageModelList.add(new HomePageModel(sliderModels, 0));
-        homePageModelList.add(new HomePageModel(1, R.drawable.strip_ad, "#000000"));
-        homePageModelList.add(new HomePageModel(2, "Deals of the day", horizontalProductScrollModels));
-        //homePageModelList.add(new HomePageModel(3, "Trending on store", horizontalProductScrollModels));
-
-        homePageModelList.add(new HomePageModel(sliderModels, 0));
-        homePageModelList.add(new HomePageModel(1, R.drawable.strip_ad, "#000000"));
-        homePageModelList.add(new HomePageModel(2, "meals of the day", horizontalProductScrollModels));
-//        homePageModelList.add(new HomePageModel(3, "Super Trending on store", horizontalProductScrollModels));
-
-        HomePageAdapter homePageAdapter = new HomePageAdapter(homePageModelList);
-        testing.setAdapter(homePageAdapter);
-        homePageAdapter.notifyDataSetChanged();
 
         /////Testing recycler view
 

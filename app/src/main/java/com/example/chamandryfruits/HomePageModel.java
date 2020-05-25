@@ -18,39 +18,47 @@ public class HomePageModel {
     public List<SliderModel> getSliderModels() {
         return sliderModels;
     }
+
     public void setSliderModels(List<SliderModel> sliderModels) {
         this.sliderModels = sliderModels;
     }
+
     public int getType() {
         return type;
     }
+
     public void setType(int type) {
         this.type = type;
     }
-    public HomePageModel(List<SliderModel> sliderModels, int type) {
+
+    public HomePageModel(int type, List<SliderModel> sliderModels) {
         this.sliderModels = sliderModels;
         this.type = type;
     }
     /////Banner slider code
 
     ////strip add layout
-    private int resource;
+    private String resource;
     private String backgroundColor;
 
-    public HomePageModel(int type, int resource, String backgroundColor) {
+    public HomePageModel(int type, String resource, String backgroundColor) {
         this.type = type;
         this.resource = resource;
         this.backgroundColor = backgroundColor;
     }
-    public int getResource() {
+
+    public String getResource() {
         return resource;
     }
-    public void setResource(int resource) {
+
+    public void setResource(String resource) {
         this.resource = resource;
     }
+
     public String getBackgroundColor() {
         return backgroundColor;
     }
+
     public void setBackgroundColor(String backgroundColor) {
         this.backgroundColor = backgroundColor;
     }
@@ -69,18 +77,19 @@ public class HomePageModel {
     public String getTitle() {
         return title;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
+
     public List<HorizontalProductScrollModel> getHorizontalProductScrollModels() {
         return horizontalProductScrollModels;
     }
+
     public void setHorizontalProductScrollModels(List<HorizontalProductScrollModel> horizontalProductScrollModels) {
         this.horizontalProductScrollModels = horizontalProductScrollModels;
     }
     ////Horizontal Product Layout && grid product layout
-
-
 
 
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,6 +20,9 @@ import androidx.gridlayout.widget.GridLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +85,7 @@ public class HomePageAdapter extends RecyclerView.Adapter {
                 ((BannerSliderViewHolder) holder).setBannerSliderViewPager(sliderModels);
                 break;
             case HomePageModel.stripAdBanner:
-                int resource = homePageModelList.get(position).getResource();
+                String resource = homePageModelList.get(position).getResource();
                 String color = homePageModelList.get(position).getBackgroundColor();
                 ((StripAdViewHolder) holder).setStripAd(resource, color);
                 break;
@@ -224,8 +228,8 @@ public class HomePageAdapter extends RecyclerView.Adapter {
 
         }
 
-        private void setStripAd(int resource, String color) {
-            stripAd.setImageResource(resource);
+        private void setStripAd(String  resource, String color) {
+            Glide.with(itemView.getContext()).load(resource).apply(new RequestOptions().placeholder(R.drawable.strip_ad)).into(stripAd);
             stripAdContainer.setBackgroundColor(Color.parseColor(color));
         }
     }
