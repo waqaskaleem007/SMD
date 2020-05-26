@@ -1,0 +1,124 @@
+package com.example.chamandryfruits;
+
+import android.content.Context;
+import android.os.Build;
+import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class DBQueries {
+
+    public static FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+    public static List<CategoryModel> categoryModels = new ArrayList<>();
+    public static List<HomePageModel> homePageModelList = new ArrayList<>();
+
+    public static void LoadCategories(final CategoryAdapter categoryAdapter, final Context context) {
+
+        firebaseFirestore.collection("CATEGORIES").orderBy("index").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot documentSnapshot : Objects.requireNonNull(task.getResult())) {
+                                categoryModels.add(new CategoryModel(Objects.requireNonNull(documentSnapshot.get("icon")).toString(), Objects.requireNonNull(documentSnapshot.get("categoryName")).toString()));
+                            }
+                            categoryAdapter.notifyDataSetChanged();
+                        } else {
+                            String error = task.getException().getMessage();
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                            Log.d("into category error", error);
+                        }
+                    }
+                });
+
+
+    }
+
+    public static void LoadFragmentData(final HomePageAdapter homePageAdapter, final Context context) {
+        firebaseFirestore.collection("CATEGORIES")
+                .document("Home")
+                .collection("TOP_DEALS").orderBy("index").get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot documentSnapshot : Objects.requireNonNull(task.getResult())) {
+                                long view_type = (long) documentSnapshot.get("view_type");
+                                if (view_type == 0) {
+                                    List<SliderModel> sliderModels = new ArrayList<>();
+                                    long noOfBanners = (long) documentSnapshot.get("no_of_banners");
+                                    for (long i = 1; i < noOfBanners + 1; i++) {
+                                        sliderModels.add(new SliderModel(Objects.requireNonNull(documentSnapshot.get("banner_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("banner_" + i + "_background")).toString()));
+                                    }
+                                    homePageModelList.add(new HomePageModel(0, sliderModels));
+                                } else if (view_type == 1) {
+                                    homePageModelList.add(new HomePageModel(1, Objects.requireNonNull(documentSnapshot.get("strip_ad_banner")).toString(),
+                                            Objects.requireNonNull(documentSnapshot.get("background")).toString()));
+                                } else if (view_type == 2) {
+
+                                    List<WishListModel> viewAllProductList = new ArrayList<>();
+
+                                    List<HorizontalProductScrollModel> horizontalProductScrollModels = new ArrayList<>();
+                                    long noOfProducts = (long) documentSnapshot.get("no_of_products");
+                                    for (long i = 1; i < noOfProducts + 1; i++) {
+                                        horizontalProductScrollModels.add(new HorizontalProductScrollModel("" + i,
+                                                Objects.requireNonNull(documentSnapshot.get("product_image_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_title_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_subtitle_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_price_" + i)).toString()));
+
+                                        viewAllProductList.add(new WishListModel(Objects.requireNonNull(documentSnapshot.get("product_image_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_full_title_" + i)).toString(),
+                                                (long) Objects.requireNonNull(documentSnapshot.get("free_coupons_" + i)),
+                                                Objects.requireNonNull(documentSnapshot.get("average_ratting_" + i)).toString(),
+                                                (long) Objects.requireNonNull(documentSnapshot.get("total_ratings_" + i)),
+                                                Objects.requireNonNull(documentSnapshot.get("product_price_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("cutted_price_" + i)).toString(),
+                                                (boolean) Objects.requireNonNull(documentSnapshot.get("COD_" + i))));
+
+                                    }
+                                    homePageModelList.add(new HomePageModel(2, Objects.requireNonNull(documentSnapshot.get("layout_title")).toString(), Objects.requireNonNull(documentSnapshot.get("layout_background")).toString(), horizontalProductScrollModels, viewAllProductList));
+
+                                } else if (view_type == 3) {
+                                    List<HorizontalProductScrollModel> gridProductScrollModels = new ArrayList<>();
+                                    long noOfProducts = (long) documentSnapshot.get("no_of_products");
+                                    for (long i = 1; i < noOfProducts + 1; i++) {
+                                        gridProductScrollModels.add(new HorizontalProductScrollModel("" + i,
+                                                Objects.requireNonNull(documentSnapshot.get("product_image_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_title_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_subtitle_" + i)).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("product_price_" + i)).toString()));
+                                    }
+                                    homePageModelList.add(new HomePageModel(3, Objects.requireNonNull(documentSnapshot.get("layout_title")).toString(), Objects.requireNonNull(documentSnapshot.get("layout_background")).toString(), gridProductScrollModels));
+                                } else {
+                                    return;
+                                }
+                            }
+                            homePageAdapter.notifyDataSetChanged();
+                        } else {
+                            String error = task.getException().getMessage();
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                            Log.d("into category error", error);
+                        }
+                    }
+                });
+
+
+    }
+
+}

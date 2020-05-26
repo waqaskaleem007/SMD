@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +45,7 @@ public class GridProductLayoutAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
         View view;
-        if(convertView == null){
+        if (convertView == null) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.horizontal_scroll_item_layout, null);
             view.setElevation(0);
             view.setBackgroundColor(Color.parseColor("#ffffff"));
@@ -56,18 +59,17 @@ public class GridProductLayoutAdapter extends BaseAdapter {
             });
 
 
-
             ImageView productImage = view.findViewById(R.id.h_s_product_image);
             TextView productTitle = view.findViewById(R.id.h_s_product_name);
             TextView productDesc = view.findViewById(R.id.h_s_product_desc);
             TextView productPrice = view.findViewById(R.id.h_s_product_price);
 
-            productImage.setImageResource(horizontalProductScrollModelList.get(position).getProductImage());
+            Glide.with(parent.getContext()).load(horizontalProductScrollModelList.get(position).getProductImage()).apply(new RequestOptions().placeholder(R.mipmap.phone_image)).into(productImage);
             productTitle.setText(horizontalProductScrollModelList.get(position).getProductTitle());
             productDesc.setText(horizontalProductScrollModelList.get(position).getProductDesc());
-            productPrice.setText(horizontalProductScrollModelList.get(position).getProductPrice());
+            productPrice.setText("Rs." + horizontalProductScrollModelList.get(position).getProductPrice() + "/-");
 
-        }else{
+        } else {
             view = convertView;
         }
         return view;

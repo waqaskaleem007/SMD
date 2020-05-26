@@ -1,8 +1,11 @@
 package com.example.chamandryfruits;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -15,6 +18,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -50,6 +54,7 @@ public class Home extends AppCompatActivity {
     private ImageView mainLogo;
     private AppBarConfiguration mAppBarConfiguration;
     private FrameLayout frameLayout;
+    private ImageView noInternetConnection;
     private NavigationView navigationView;
     private DrawerLayout drawer;
     private int currentFragment = -1;

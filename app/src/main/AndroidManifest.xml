@@ -3,6 +3,8 @@
     package="com.example.chamandryfruits">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
 
     <application
         android:fullBackupContent="@xml/backup_descriptor"
@@ -11,7 +13,7 @@
         android:roundIcon="@mipmap/app_round_icon"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ViewAllActivity"></activity>
+        <activity android:name=".ViewAllActivity"/>
         <activity android:name=".MyAddressesActivity" />
         <activity
             android:name=".AddAddressActivity"

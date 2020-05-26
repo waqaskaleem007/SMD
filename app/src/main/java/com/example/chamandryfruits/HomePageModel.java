@@ -11,6 +11,7 @@ public class HomePageModel {
     final static public int gridProduct = 3;
 
     private int type;
+    private String backgroundColor;
 
     /////Banner slider code
     List<SliderModel> sliderModels = new ArrayList<SliderModel>();
@@ -39,7 +40,7 @@ public class HomePageModel {
 
     ////strip add layout
     private String resource;
-    private String backgroundColor;
+
 
     public HomePageModel(int type, String resource, String backgroundColor) {
         this.type = type;
@@ -65,12 +66,13 @@ public class HomePageModel {
     ////strip add layout
 
     ////Horizontal Product Layout && grid product layout
-    String title;
-    List<HorizontalProductScrollModel> horizontalProductScrollModels = new ArrayList<>();
+    private String title;
+    private List<HorizontalProductScrollModel> horizontalProductScrollModels = new ArrayList<>();
 
-    public HomePageModel(int type, String title, List<HorizontalProductScrollModel> horizontalProductScrollModels) {
+    public HomePageModel(int type, String title, String backgroundColor,List<HorizontalProductScrollModel> horizontalProductScrollModels) {
         this.type = type;
         this.title = title;
+        this.backgroundColor = backgroundColor;
         this.horizontalProductScrollModels = horizontalProductScrollModels;
     }
 
@@ -90,6 +92,30 @@ public class HomePageModel {
         this.horizontalProductScrollModels = horizontalProductScrollModels;
     }
     ////Horizontal Product Layout && grid product layout
+
+
+
+    ///////view All functionality
+    private List<WishListModel> viewAllProductList;
+
+    public List<WishListModel> getViewAllProductList() {
+        return viewAllProductList;
+    }
+
+    public void setViewAllProductList(List<WishListModel> viewAllProductList) {
+        this.viewAllProductList = viewAllProductList;
+    }
+
+    public HomePageModel(int type, String title, String backgroundColor, List<HorizontalProductScrollModel> horizontalProductScrollModels, List<WishListModel> viewAllProductList) {
+        this.type = type;
+        this.title = title;
+        this.backgroundColor = backgroundColor;
+        this.horizontalProductScrollModels = horizontalProductScrollModels;
+        this.viewAllProductList = viewAllProductList;
+    }
+
+    ///////view All functionality
+
 
 
 }

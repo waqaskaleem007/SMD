@@ -38,12 +38,6 @@ public class MyWishListFragment extends Fragment {
         wishListRecyclerView.setLayoutManager(layoutManager);
 
         List<WishListModel> wishListModels = new ArrayList<>();
-        wishListModels.add(new WishListModel(R.mipmap.phone2, "Pixel 2(Black)",3,"1.5",700,"Rs.49999/-","Rs.59999/-","Cash on delivery"));
-        wishListModels.add(new WishListModel(R.mipmap.phone_image, "Pixel 3(Black)",2,"2.5",800,"Rs.59999/-","Rs.59999/-","Cash on delivery"));
-        wishListModels.add(new WishListModel(R.mipmap.phone2, "Pixel 4(Black)",1,"3.5",300,"Rs.69999/-","Rs.59999/-","with card"));
-        wishListModels.add(new WishListModel(R.mipmap.phone_image, "Pixel 5(White)",0,"4.5",200,"Rs.79999/-","Rs.59999/-","Cash on delivery"));
-        wishListModels.add(new WishListModel(R.mipmap.phone2, "Pixel 6(Black)",4,"2.5",1700,"Rs.89999/-","Rs.59999/-","Cash on delivery"));
-        wishListModels.add(new WishListModel(R.mipmap.phone_image, "Pixel 7(Black)",0,"4.5",7200,"Rs.99999/-","Rs.59999/-","Cash on delivery"));
 
         WishListAdapter wishListAdapter = new WishListAdapter(wishListModels,true);
         wishListRecyclerView.setAdapter(wishListAdapter);
