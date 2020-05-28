@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -23,6 +24,9 @@ public class ProductSpecificationFragment extends Fragment {
         // Required empty public constructor
     }
 
+    RecyclerView productSpecificationRecyclerView;
+    public List<ProductSpecificationModel> productSpecificationModels;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,13 +34,15 @@ public class ProductSpecificationFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_product_specification, container, false);
 
-        RecyclerView productSpecificationRecyclerView = view.findViewById(R.id.product_specification_recyclerview);
+        productSpecificationRecyclerView = view.findViewById(R.id.product_specification_recyclerview);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         productSpecificationRecyclerView.setLayoutManager(layoutManager);
 
-        List<ProductSpecificationModel> productSpecificationModels = new ArrayList<>();
+
+
+      /*
         productSpecificationModels.add(new ProductSpecificationModel(0, "General"));
         productSpecificationModels.add(new ProductSpecificationModel(1, "RAM", "4GB"));
         productSpecificationModels.add(new ProductSpecificationModel(1, "RAM", "4GB"));
@@ -71,6 +77,7 @@ public class ProductSpecificationFragment extends Fragment {
         productSpecificationModels.add(new ProductSpecificationModel(1, "RAM", "4GB"));
         productSpecificationModels.add(new ProductSpecificationModel(1, "RAM", "4GB"));
 
+       */
 
 
         ProductSpecificationAdapter productSpecificationAdapter = new ProductSpecificationAdapter(productSpecificationModels);

@@ -18,14 +18,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,6 +35,7 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 
 import java.util.Objects;
 
@@ -56,11 +56,16 @@ public class Home extends AppCompatActivity {
     private FrameLayout frameLayout;
     private ImageView noInternetConnection;
     private NavigationView navigationView;
-    private DrawerLayout drawer;
+    public static DrawerLayout drawer;
     private int currentFragment = -1;
 
     private Window window;
-    private Toolbar toolbar;
+    public static Toolbar toolbar;
+
+    private Dialog signInDialog;
+
+    private FirebaseUser currentUser;
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -77,48 +82,60 @@ public class Home extends AppCompatActivity {
         drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+        // menu should be considered as top level destinations
+        signInDialog = new Dialog(Home.this);
+        signInDialog.setContentView(R.layout.sign_in_dialog);
+        signInDialog.setCancelable(true);
+        Objects.requireNonNull(signInDialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                 .setDrawerLayout(drawer)
                 .build();
         final NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-
         NavigationUI.setupWithNavController(navigationView, navController);
-
         navigationView.getMenu().getItem(0).setChecked(true);
-
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                        int id = menuItem.getItemId();
-                        if (id == R.id.nav_my_mall) {
-                            mainLogo.setVisibility(View.VISIBLE);
-                            invalidateOptionsMenu();
-                            SetFragment(new HomeFragment(), HOME_FRAGMENT);
+                        if(currentUser != null) {
+                            int id = menuItem.getItemId();
+                            if (id == R.id.nav_my_mall) {
+                                mainLogo.setVisibility(View.VISIBLE);
+                                invalidateOptionsMenu();
+                                SetFragment(new HomeFragment(), HOME_FRAGMENT);
+                                return true;
+                            } else if (id == R.id.nav_my_account) {
+                                GoToFragment("My Account", new MyAccountFragment(), ACCOUNT_FRAGMENT);
+                                return true;
+                            } else if (id == R.id.nav_my_cart) {
+                                GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
+                                return true;
+                            } else if (id == R.id.nav_my_orders) {
+                                GoToFragment("My Orders", new MyOrdersFragment(), ORDERS_FRAGMENT);
+                                return true;
+                            } else if (id == R.id.nav_my_rewards) {
+                                GoToFragment("My Rewards", new MyRewardsFragment(), REWARDS_FRAGMENT);
+                                return true;
+                            } else if (id == R.id.nav_my_wishlist) {
+                                GoToFragment("My Wishlist", new MyWishListFragment(), WISHLIST_FRAGMENT);
+                                return true;
+                            } else if (id == R.id.sign_out) {
+                                FirebaseAuth.getInstance().signOut();
+                                Intent registerIntent = new Intent(Home.this, RegisterActivity.class);
+                                startActivity(registerIntent);
+                                finish();
+                                return true;
+                            }
+                            menuItem.setChecked(true);
+                            //drawerLayout.closeDrawers();
                             return true;
-                        } else if (id == R.id.nav_my_account) {
-                            GoToFragment("My Account", new MyAccountFragment(), ACCOUNT_FRAGMENT);
-                            return true;
-                        } else if (id == R.id.nav_my_cart) {
-                            GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
-                            return true;
-                        } else if (id == R.id.nav_my_orders) {
-                            GoToFragment("My Orders", new MyOrdersFragment(), ORDERS_FRAGMENT);
-                            return true;
-                        } else if (id == R.id.nav_my_rewards) {
-                            GoToFragment("My Rewards", new MyRewardsFragment(), REWARDS_FRAGMENT);
-                            return true;
-                        } else if (id == R.id.nav_my_wishlist) {
-                            GoToFragment("My Wishlist", new MyWishListFragment(), WISHLIST_FRAGMENT);
-                            return true;
-                        } else if (id == R.id.sign_out) {
-                            return true;
+                        }else {
+                            drawer.closeDrawer(GravityCompat.START);
+                            signInDialog.show();
+                            return false;
                         }
-                        menuItem.setChecked(true);
-                        //drawerLayout.closeDrawers();
-                        return true;
                     }
                 });
 
@@ -130,6 +147,46 @@ public class Home extends AppCompatActivity {
         } else {
             NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
             SetFragment(new HomeFragment(), HOME_FRAGMENT);
+        }
+
+
+        final Button signInBtn = signInDialog.findViewById(R.id.dialog_sign_in_button);
+        Button signUpBtn = signInDialog.findViewById(R.id.dialog_sign_up_button);
+
+        final Intent registerIntent = new Intent(Home.this, RegisterActivity.class);
+
+        signInBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignInFragment.disableCloseButton = true;
+                SignUpFragment.disableCloseButton = true;
+                signInDialog.dismiss();
+                setSignUpFragment = false;
+                startActivity(registerIntent);
+            }
+        });
+
+        signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignUpFragment.disableCloseButton = true;
+                SignInFragment.disableCloseButton = true;
+                signInDialog.dismiss();
+                setSignUpFragment = true;
+                startActivity(registerIntent);
+            }
+        });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
+        } else {
+            navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
         }
 
     }
@@ -153,10 +210,10 @@ public class Home extends AppCompatActivity {
                     invalidateOptionsMenu();
                     SetFragment(new HomeFragment(), HOME_FRAGMENT);
                     navigationView.getMenu().getItem(0).setChecked(true);
-
                 }
             }
         }
+
 
     }
 
@@ -169,35 +226,11 @@ public class Home extends AppCompatActivity {
         } else if (id == R.id.main_notification_icon) {
             return true;
         } else if (id == R.id.main_cart_icon) {
-            //GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
-            final Dialog signInDialog = new Dialog(Home.this);
-            signInDialog.setContentView(R.layout.sign_in_dialog);
-            signInDialog.setCancelable(true);
-            Objects.requireNonNull(signInDialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-            Button signInBtn = signInDialog.findViewById(R.id.dialog_sign_in_button);
-            Button signUpBtn = signInDialog.findViewById(R.id.dialog_sign_up_button);
-
-            final Intent registerIntent = new Intent(Home.this, RegisterActivity.class);
-
-            signInBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    signInDialog.dismiss();
-                    setSignUpFragment = false;
-                    startActivity(registerIntent);
-                }
-            });
-
-            signUpBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    signInDialog.dismiss();
-                    setSignUpFragment = true;
-                    startActivity(registerIntent);
-                }
-            });
-            signInDialog.show();
+            if (currentUser == null) {
+                signInDialog.show();
+            } else {
+                GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
+            }
             return true;
 
         } else if (id == android.R.id.home) {
@@ -263,4 +296,8 @@ public class Home extends AppCompatActivity {
     }
 
 
+
+
 }
+
+

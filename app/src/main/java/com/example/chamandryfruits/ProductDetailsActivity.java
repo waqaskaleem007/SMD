@@ -4,9 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.app.Dialog;
@@ -15,6 +15,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,29 +23,74 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static com.example.chamandryfruits.Home.showCart;
+import static com.example.chamandryfruits.RegisterActivity.setSignUpFragment;
 
 public class ProductDetailsActivity extends AppCompatActivity {
 
 
     private ViewPager productImagesViewPager;
     private TabLayout viewPagerIndicator;
+    private TextView productTitle;
+    private TextView avgRatingMiniView;
+    private TextView totalRatingMiniView;
+    private TextView productPrice;
+    private TextView cuttedPrice;
+    private ImageView codIndicator;
+    private TextView tvCodIndicator;
+    private TextView rewardTitle;
+    private TextView rewardBody;
+
     private FloatingActionButton addToWishListButton;
     private static boolean ALREADY_ADDED_TO_WISHLIST = false;
-    private ViewPager productDetailsViewpager;
-    private TabLayout productDetailsTabLayout;
     private Button couponRedeemButton;
 
+    ////product description variables
+    private ConstraintLayout productDetailsOnlyContainer;
+    private ConstraintLayout productDetailsTabsContainer;
+    private ViewPager productDetailsViewpager;
+    private TabLayout productDetailsTabLayout;
+    private String productDescription;
+    private String productOtherDetails;
+    private TextView productOnlyDescriptionBody;
+    private List<ProductSpecificationModel> productSpecificationModels = new ArrayList<>();
+    private View productTabInclude;
+    private View productDetailsOnlyInclude;
+
+    ////product description variables
+
+
+    ////////rating layout
+    private LinearLayout rateNowContainer;
+    private TextView totalRatings;
+    private LinearLayout ratingsNumberContainer;
+    private TextView totalRatingsFigure;
+    private LinearLayout ratingsProgressBarContainer;
+    private TextView averageRating;
+    ////////rating layout
+
+    private Button buyNowButton;
+
+    private FirebaseFirestore firebaseFirestore;
     ////coupon Dialog
+    private LinearLayout couponRedemptionLayout;
     public static TextView couponTitle;
     public static TextView couponBody;
     public static TextView couponExpiryDate;
@@ -53,13 +99,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
     ////coupon Dialog
 
 
-    ////////rating layout
+    private Dialog signInDialog;
+    private LinearLayout addToCart;
 
-    private LinearLayout rateNowContainer;
-
-    ////////rating layout
-
-    private Button buyNowButton;
+    private FirebaseUser currentUser;
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
@@ -77,17 +120,109 @@ public class ProductDetailsActivity extends AppCompatActivity {
         productDetailsViewpager = findViewById(R.id.product_details_viewpager);
         productDetailsTabLayout = findViewById(R.id.product_details_tab_layout);
 
+
         buyNowButton = findViewById(R.id.buy_now_button);
         couponRedeemButton = findViewById(R.id.coupon_reedemption_button);
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        productTitle = findViewById(R.id.product_title);
+        avgRatingMiniView = findViewById(R.id.tv_product_rating_miniview);
+        totalRatingMiniView = findViewById(R.id.total_rating_miniview);
+        productPrice = findViewById(R.id.product_price);
+        cuttedPrice = findViewById(R.id.cutted_price);
+        codIndicator = findViewById(R.id.cod_idicator_imageview);
+        tvCodIndicator = findViewById(R.id.tv_cod_indicator);
+        rewardTitle = findViewById(R.id.reward_title);
+        rewardBody = findViewById(R.id.reward_body);
 
-        List<Integer> productImages = new ArrayList<>();
-        productImages.add(R.mipmap.phone_image);
-        productImages.add(R.mipmap.book);
-        productImages.add(R.mipmap.handfree);
-        productImages.add(R.mipmap.sofa);
+        productDetailsTabsContainer = findViewById(R.id.product_details_tabs_containers);
+        productDetailsOnlyContainer = findViewById(R.id.product_details_container);
+        productTabInclude = findViewById(R.id.product_description_include_layout);
+        productDetailsOnlyInclude = findViewById(R.id.product_details_include_layout);
 
-        ProductImagesAdapter productImagesAdapter = new ProductImagesAdapter(productImages);
-        productImagesViewPager.setAdapter(productImagesAdapter);
+        productOnlyDescriptionBody = findViewById(R.id.product_details_body);
+
+        totalRatings = findViewById(R.id.total_ratings);
+        ratingsNumberContainer = findViewById(R.id.ratings_numbers_container);
+        totalRatingsFigure = findViewById(R.id.total_ratings_figure);
+        ratingsProgressBarContainer = findViewById(R.id.rating_progressbar_container);
+        averageRating = findViewById(R.id.avg_rating);
+
+        addToCart = findViewById(R.id.Add_to_cart_button);
+
+        couponRedemptionLayout = findViewById(R.id.coupon_reedemption_layout);
+
+        final List<String> productImages = new ArrayList<>();
+        firebaseFirestore.collection("PRODUCTS").document(Objects.requireNonNull(getIntent().getStringExtra("PRODUCT_ID")))
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    assert documentSnapshot != null;
+                    for (long i = 1; i < (long) documentSnapshot.get("no_of_product_images") + 1; i++) {
+                        productImages.add(Objects.requireNonNull(documentSnapshot.get("product_image_" + i)).toString());
+                    }
+                    ProductImagesAdapter productImagesAdapter = new ProductImagesAdapter(productImages);
+                    productImagesViewPager.setAdapter(productImagesAdapter);
+
+                    productTitle.setText(Objects.requireNonNull(documentSnapshot.get("product_title")).toString());
+                    avgRatingMiniView.setText(Objects.requireNonNull(documentSnapshot.get("average_rating")).toString());
+                    totalRatingMiniView.setText("(" + (long) documentSnapshot.get("total_ratings") + ")" + "Ratings");
+                    productPrice.setText(Objects.requireNonNull("Rs." + documentSnapshot.get("product_price")).toString() + "/-");
+                    cuttedPrice.setText(Objects.requireNonNull("Rs." + documentSnapshot.get("cutted_price")).toString() + "/-");
+                    if ((boolean) documentSnapshot.get("COD")) {
+                        tvCodIndicator.setVisibility(View.VISIBLE);
+                        codIndicator.setVisibility(View.VISIBLE);
+                    } else {
+                        tvCodIndicator.setVisibility(View.GONE);
+                        codIndicator.setVisibility(View.GONE);
+                    }
+                    rewardTitle.setText((long) documentSnapshot.get("free_coupons") + " " + documentSnapshot.get("free_coupon_title").toString());
+                    rewardBody.setText(Objects.requireNonNull(documentSnapshot.get("free_coupon_body")).toString());
+                    if ((boolean) documentSnapshot.get("use_tab_layout")) {
+                        //productDetailsTabsContainer.setVisibility(View.VISIBLE);
+                        //productDetailsOnlyContainer.setVisibility(View.VISIBLE);
+                        productTabInclude.setVisibility(View.VISIBLE);
+                        productDetailsOnlyInclude.setVisibility(View.GONE);
+
+                        productDescription = Objects.requireNonNull(documentSnapshot.get("product_description")).toString();
+
+                        productOtherDetails = Objects.requireNonNull(documentSnapshot.get("product_other_details")).toString();
+                        for (long i = 1; i < (long) documentSnapshot.get("total_spec_titles") + 1; i++) {
+                            productSpecificationModels.add(new ProductSpecificationModel(0, Objects.requireNonNull(documentSnapshot.get("spec_title_" + i)).toString()));
+                            for (long j = 1; j < (long) documentSnapshot.get("spec_title_" + i + "_total_fields") + 1; j++) {
+                                productSpecificationModels.add(new ProductSpecificationModel(1, Objects.requireNonNull(documentSnapshot.get("spec_title_" + i + "_field_" + j + "_name")).toString(), Objects.requireNonNull(documentSnapshot.get("spec_title_" + i + "_field_" + j + "_value")).toString()));
+                            }
+                        }
+                    } else {
+                        //productDetailsTabsContainer.setVisibility(View.INVISIBLE);
+                        //productDetailsOnlyContainer.setVisibility(View.INVISIBLE);
+                        productTabInclude.setVisibility(View.GONE);
+                        productDetailsOnlyInclude.setVisibility(View.VISIBLE);
+                        productOnlyDescriptionBody.setText(Objects.requireNonNull(documentSnapshot.get("product_description")).toString());
+                    }
+
+                    totalRatings.setText((long) documentSnapshot.get("total_ratings") + "ratings");
+                    for (int i = 0; i < 5; i++) {
+                        TextView rating = (TextView) ratingsNumberContainer.getChildAt(i);
+                        rating.setText(String.valueOf((long) Objects.requireNonNull(documentSnapshot.get(5 - i + "_star"))));
+                        ProgressBar progressBar = (ProgressBar) ratingsProgressBarContainer.getChildAt(i);
+                        int maxProgress = Integer.parseInt((String.valueOf((long) documentSnapshot.get("total_ratings"))));
+                        progressBar.setMax(maxProgress);
+                        progressBar.setProgress(Integer.parseInt(String.valueOf((long) Objects.requireNonNull(documentSnapshot.get(5 - i + "_star")))));
+                    }
+                    totalRatingsFigure.setText(String.valueOf((long) documentSnapshot.get("total_ratings")));
+                    averageRating.setText(Objects.requireNonNull(documentSnapshot.get("average_rating")).toString());
+                    final ProductDetailsAdapter productDetailsAdapter = new ProductDetailsAdapter(getSupportFragmentManager(), 0, productDetailsTabLayout.getTabCount(), productDescription, productOtherDetails, productSpecificationModels);
+                    productDetailsViewpager.setAdapter(productDetailsAdapter);
+
+                } else {
+                    String error = Objects.requireNonNull(task.getException()).getMessage();
+                    Toast.makeText(ProductDetailsActivity.this, error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
 
         viewPagerIndicator.setupWithViewPager(productImagesViewPager, true);
 
@@ -95,18 +230,20 @@ public class ProductDetailsActivity extends AppCompatActivity {
         addToWishListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ALREADY_ADDED_TO_WISHLIST) {
-                    ALREADY_ADDED_TO_WISHLIST = false;
-                    addToWishListButton.setSupportImageTintList(ColorStateList.valueOf(Color.parseColor("#9f9f9f")));
+                if (currentUser == null) {
+                    signInDialog.show();
                 } else {
-                    ALREADY_ADDED_TO_WISHLIST = true;
-                    addToWishListButton.setSupportImageTintList(getResources().getColorStateList(R.color.colorPrimary));
+                    if (ALREADY_ADDED_TO_WISHLIST) {
+                        ALREADY_ADDED_TO_WISHLIST = false;
+                        addToWishListButton.setSupportImageTintList(ColorStateList.valueOf(Color.parseColor("#9f9f9f")));
+                    } else {
+                        ALREADY_ADDED_TO_WISHLIST = true;
+                        addToWishListButton.setSupportImageTintList(getResources().getColorStateList(R.color.colorPrimary));
+                    }
                 }
             }
         });
 
-        final ProductDetailsAdapter productDetailsAdapter = new ProductDetailsAdapter(getSupportFragmentManager(), 0, productDetailsTabLayout.getTabCount());
-        productDetailsViewpager.setAdapter(productDetailsAdapter);
         productDetailsViewpager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(productDetailsTabLayout));
         productDetailsTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -130,14 +267,17 @@ public class ProductDetailsActivity extends AppCompatActivity {
         ////////rating layout
 
         rateNowContainer = findViewById(R.id.ratenow_container);
-
         for (int i = 0; i < rateNowContainer.getChildCount(); i++) {
             final int starPosition = i;
             rateNowContainer.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onClick(View v) {
-                    SetRating(starPosition);
+                    if (currentUser == null) {
+                        signInDialog.show();
+                    } else {
+                        SetRating(starPosition);
+                    }
                 }
             });
         }
@@ -147,8 +287,23 @@ public class ProductDetailsActivity extends AppCompatActivity {
         buyNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
-                startActivity(deliveryIntent);
+                if (currentUser == null) {
+                    signInDialog.show();
+                } else {
+                    Intent deliveryIntent = new Intent(ProductDetailsActivity.this, DeliveryActivity.class);
+                    startActivity(deliveryIntent);
+                }
+            }
+        });
+
+        addToCart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (currentUser == null) {
+                    signInDialog.show();
+                } else {
+                    /////to be add to cart
+                }
             }
         });
 
@@ -200,10 +355,57 @@ public class ProductDetailsActivity extends AppCompatActivity {
         couponRedeemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 checkCouponPriceDialog.show();
             }
         });
+
+        /////sign in dialog
+        signInDialog = new Dialog(ProductDetailsActivity.this);
+        signInDialog.setContentView(R.layout.sign_in_dialog);
+        signInDialog.setCancelable(true);
+        Objects.requireNonNull(signInDialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        Button signInBtn = signInDialog.findViewById(R.id.dialog_sign_in_button);
+        Button signUpBtn = signInDialog.findViewById(R.id.dialog_sign_up_button);
+
+        final Intent registerIntent = new Intent(ProductDetailsActivity.this, RegisterActivity.class);
+
+        signInBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignInFragment.disableCloseButton = true;
+                SignUpFragment.disableCloseButton = true;
+                signInDialog.dismiss();
+                setSignUpFragment = false;
+                startActivity(registerIntent);
+            }
+        });
+
+        signUpBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SignInFragment.disableCloseButton = true;
+                SignUpFragment.disableCloseButton = true;
+                signInDialog.dismiss();
+                setSignUpFragment = true;
+                startActivity(registerIntent);
+            }
+        });
+
+        ///sign in Dialog
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser == null){
+            couponRedemptionLayout.setVisibility(View.GONE);
+        }else {
+            couponRedemptionLayout.setVisibility(View.VISIBLE);
+        }
+
 
     }
 
@@ -238,10 +440,14 @@ public class ProductDetailsActivity extends AppCompatActivity {
         } else if (id == R.id.main_search_icon) {
             return true;
         } else if (id == R.id.main_cart_icon) {
-            Intent cartIntent = new Intent(ProductDetailsActivity.this, Home.class);
-            showCart = true;
-            startActivity(cartIntent);
-            return true;
+            if (currentUser == null) {
+                signInDialog.show();
+            } else {
+                Intent cartIntent = new Intent(ProductDetailsActivity.this, Home.class);
+                showCart = true;
+                startActivity(cartIntent);
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
 

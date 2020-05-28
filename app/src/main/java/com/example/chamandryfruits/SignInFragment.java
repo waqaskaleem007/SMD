@@ -54,6 +54,8 @@ public class SignInFragment extends Fragment {
     private FirebaseAuth firebaseAuth;
     private String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+.[a-z]+";
 
+    public static boolean disableCloseButton = false;
+
     public SignInFragment() {
         // Required empty public constructor
     }
@@ -77,9 +79,13 @@ public class SignInFragment extends Fragment {
         signIn = view.findViewById(R.id.sign_in_button);
         progressBar = view.findViewById(R.id.sign_progressBar);
         close = view.findViewById(R.id.signin_close);
-
         firebaseAuth = FirebaseAuth.getInstance();
 
+        if(disableCloseButton){
+            close.setVisibility(View.GONE);
+        }else {
+            close.setVisibility(View.VISIBLE);
+        }
 
         return view;
     }
@@ -191,9 +197,13 @@ public class SignInFragment extends Fragment {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful()){
-                                    Intent intent = new Intent(getContext(),Home.class);
-                                    startActivity(intent);
-                                    getActivity().finish();
+                                    if(disableCloseButton){
+                                        disableCloseButton = false;
+                                    }else {
+                                        Intent intent = new Intent(getContext(), Home.class);
+                                        startActivity(intent);
+                                    }
+                                    Objects.requireNonNull(getActivity()).finish();
                                 }else{
                                     progressBar.setVisibility(View.INVISIBLE);
                                     signIn.setEnabled(true);

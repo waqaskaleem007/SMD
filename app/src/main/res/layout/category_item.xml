@@ -20,7 +20,7 @@
         app:layout_constraintHorizontal_bias="0.475"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/home" />
+        app:srcCompat="@drawable/img_placeholder" />
 
     <TextView
         android:id="@+id/category_name"

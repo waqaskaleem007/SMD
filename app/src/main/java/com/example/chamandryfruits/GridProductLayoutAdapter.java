@@ -43,7 +43,7 @@ public class GridProductLayoutAdapter extends BaseAdapter {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public View getView(int position, View convertView, final ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         View view;
         if (convertView == null) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.horizontal_scroll_item_layout, null);
@@ -53,7 +53,9 @@ public class GridProductLayoutAdapter extends BaseAdapter {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
                     Intent productDetailIntent = new Intent(parent.getContext(), ProductDetailsActivity.class);
+                    productDetailIntent.putExtra("PRODUCT_ID",horizontalProductScrollModelList.get(position).getProductId());
                     parent.getContext().startActivity(productDetailIntent);
                 }
             });
@@ -64,7 +66,7 @@ public class GridProductLayoutAdapter extends BaseAdapter {
             TextView productDesc = view.findViewById(R.id.h_s_product_desc);
             TextView productPrice = view.findViewById(R.id.h_s_product_price);
 
-            Glide.with(parent.getContext()).load(horizontalProductScrollModelList.get(position).getProductImage()).apply(new RequestOptions().placeholder(R.mipmap.phone_image)).into(productImage);
+            Glide.with(parent.getContext()).load(horizontalProductScrollModelList.get(position).getProductImage()).apply(new RequestOptions().placeholder(R.drawable.img_placeholder)).into(productImage);
             productTitle.setText(horizontalProductScrollModelList.get(position).getProductTitle());
             productDesc.setText(horizontalProductScrollModelList.get(position).getProductDesc());
             productPrice.setText("Rs." + horizontalProductScrollModelList.get(position).getProductPrice() + "/-");

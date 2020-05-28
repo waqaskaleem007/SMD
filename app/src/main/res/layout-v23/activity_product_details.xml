@@ -44,9 +44,15 @@
 
             <include layout="@layout/reward_with_product_layout" />
 
-            <include layout="@layout/product_description_layout" />
+            <include
+                android:id="@+id/product_description_include_layout"
+                layout="@layout/product_description_layout"
+                android:visibility="gone"/>
 
-            <include layout="@layout/product_details_only_layout" />
+            <include
+                android:id="@+id/product_details_include_layout"
+                layout="@layout/product_details_only_layout"
+                android:visibility="gone" />
 
             <include layout="@layout/ratings_layout" />
         </LinearLayout>
