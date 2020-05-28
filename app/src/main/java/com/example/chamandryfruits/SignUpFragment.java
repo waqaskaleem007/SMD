@@ -245,34 +245,48 @@ public class SignUpFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull final Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        Map<Object, String> userData = new HashMap<>();
+                                        Map<String, Object> userData = new HashMap<>();
                                         userData.put("fullName", signUpName.getText().toString());
                                         userId = firebaseAuth.getUid();
-                                        DocumentReference documentReference = firebaseFirestore.collection("Users").document(userId);
-
+                                        DocumentReference documentReference = firebaseFirestore.collection("USERS").document(userId);
                                         documentReference.set(userData)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-                                                        Log.d("on success is called ", userId);
-                                                        if (disableCloseButton) {
-                                                            disableCloseButton = false;
-                                                        } else {
-                                                            Intent intent = new Intent(getContext(), Home.class);
-                                                            startActivity(intent);
-                                                            Objects.requireNonNull(getActivity()).finish();
-                                                        }
-                                                        Objects.requireNonNull(getActivity()).finish();
+                                                        Map<String, Object> listSize = new HashMap<>();
+                                                        listSize.put("list_size", Long.parseLong("0"));
+                                                        firebaseFirestore.collection("USERS").document(userId).collection("USER_DATA").document("MY_WISHLIST")
+                                                                .set(listSize).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    if (disableCloseButton) {
+                                                                        disableCloseButton = false;
+                                                                    } else {
+                                                                        Intent intent = new Intent(getContext(), Home.class);
+                                                                        startActivity(intent);
+                                                                        Objects.requireNonNull(getActivity()).finish();
+                                                                    }
+                                                                    Objects.requireNonNull(getActivity()).finish();
+                                                                } else {
+                                                                    progressBar.setVisibility(View.VISIBLE);
+                                                                    signUp.setTextColor(Color.rgb(255, 255, 255));
+                                                                    signUp.setEnabled(true);
+                                                                    String error = Objects.requireNonNull(task.getException()).toString();
+                                                                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+
+                                                                }
+                                                            }
+                                                        });
+
                                                     }
                                                 })
                                                 .addOnFailureListener(new OnFailureListener() {
                                                     @Override
                                                     public void onFailure(@NonNull Exception e) {
-                                                        progressBar.setVisibility(View.VISIBLE);
                                                         String error = Objects.requireNonNull(task.getException()).toString();
                                                         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
-                                                        signUp.setEnabled(true);
-                                                        signUp.setTextColor(Color.rgb(255, 255, 255));
+
                                                     }
                                                 });
 
