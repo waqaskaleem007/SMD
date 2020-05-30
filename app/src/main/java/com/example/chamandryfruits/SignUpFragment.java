@@ -33,10 +33,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -253,31 +256,56 @@ public class SignUpFragment extends Fragment {
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
-                                                        Map<String, Object> listSize = new HashMap<>();
-                                                        listSize.put("list_size", Long.parseLong("0"));
-                                                        firebaseFirestore.collection("USERS").document(userId).collection("USER_DATA").document("MY_WISHLIST")
-                                                                .set(listSize).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if (task.isSuccessful()) {
-                                                                    if (disableCloseButton) {
-                                                                        disableCloseButton = false;
-                                                                    } else {
-                                                                        Intent intent = new Intent(getContext(), Home.class);
-                                                                        startActivity(intent);
-                                                                        Objects.requireNonNull(getActivity()).finish();
-                                                                    }
-                                                                    Objects.requireNonNull(getActivity()).finish();
-                                                                } else {
-                                                                    progressBar.setVisibility(View.VISIBLE);
-                                                                    signUp.setTextColor(Color.rgb(255, 255, 255));
-                                                                    signUp.setEnabled(true);
-                                                                    String error = Objects.requireNonNull(task.getException()).toString();
-                                                                    Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+                                                        CollectionReference userDataReference = firebaseFirestore.collection("USERS").document(userId).collection("USER_DATA");
+                                                        ///maps
+                                                        Map<String, Object> wishListMap = new HashMap<>();
+                                                        wishListMap.put("list_size", Long.parseLong("0"));
 
+                                                        Map<String, Object> ratingsMap = new HashMap<>();
+                                                        ratingsMap.put("list_size", Long.parseLong("0"));
+
+                                                        ///maps
+
+                                                        List<String> documentName = new ArrayList<>();
+                                                        documentName.add("MY_WISHLIST");
+                                                        documentName.add("MY_RATINGS");
+
+                                                        final List<Map<String, Object>> documentFields = new ArrayList<>();
+                                                        documentFields.add(wishListMap);
+                                                        documentFields.add(ratingsMap);
+
+
+                                                        for (int i = 0; i < documentName.size(); i++) {
+                                                            final int finalI = i;
+                                                            userDataReference.document(documentName.get(i))
+                                                                    .set(documentFields.get(i)).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                    if (task.isSuccessful()) {
+                                                                        if (disableCloseButton) {
+                                                                            disableCloseButton = false;
+                                                                        } else {
+                                                                            if (finalI == documentFields.size() - 1) {
+                                                                                //if (getContext() != null) {
+                                                                                    Intent intent = new Intent(getContext(), Home.class);
+                                                                                    startActivity(intent);
+                                                                                    Objects.requireNonNull(getActivity()).finish();
+                                                                                //}
+
+                                                                            }
+                                                                        }
+                                                                        Objects.requireNonNull(getActivity()).finish();
+                                                                    } else {
+                                                                        progressBar.setVisibility(View.VISIBLE);
+                                                                        signUp.setTextColor(Color.rgb(255, 255, 255));
+                                                                        signUp.setEnabled(true);
+                                                                        String error = Objects.requireNonNull(task.getException()).toString();
+                                                                        Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+
+                                                                    }
                                                                 }
-                                                            }
-                                                        });
+                                                            });
+                                                        }
 
                                                     }
                                                 })

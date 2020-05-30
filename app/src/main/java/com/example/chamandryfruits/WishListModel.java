@@ -1,6 +1,7 @@
 package com.example.chamandryfruits;
 
 public class WishListModel {
+    private String productId;
     private String productImage;
     private String productTitle;
     private long freeCoupons;
@@ -74,7 +75,16 @@ public class WishListModel {
         this.cod = cod;
     }
 
-    public WishListModel(String productImage, String productTitle, long freeCoupons, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean cod) {
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
+    }
+
+    public WishListModel(String productId, String productImage, String productTitle, long freeCoupons, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean cod) {
+        this.productId = productId;
         this.productImage = productImage;
         this.productTitle = productTitle;
         this.freeCoupons = freeCoupons;

@@ -123,6 +123,7 @@ public class Home extends AppCompatActivity {
                                 return true;
                             } else if (id == R.id.sign_out) {
                                 FirebaseAuth.getInstance().signOut();
+                                DBQueries.clearData();
                                 Intent registerIntent = new Intent(Home.this, RegisterActivity.class);
                                 startActivity(registerIntent);
                                 finish();
