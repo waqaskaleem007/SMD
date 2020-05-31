@@ -97,4 +97,16 @@
     <string name="price_after_coupon_redemption">Price After Coupon Redemption</string>
     <string name="retry">Retry</string>
     <string name="loading">Loading...</string>
+
+
+    <string-array name="pakistan_states">
+        <item>Punjab</item>
+        <item>Sindh</item>
+        <item>Khyber Pakhtunkhwa</item>
+        <item>Balochistan</item>
+        <item>Gilgit-Baltistan</item>
+    </string-array>
+
+
+
 </resources>

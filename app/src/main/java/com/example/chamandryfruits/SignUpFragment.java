@@ -264,16 +264,24 @@ public class SignUpFragment extends Fragment {
                                                         Map<String, Object> ratingsMap = new HashMap<>();
                                                         ratingsMap.put("list_size", Long.parseLong("0"));
 
+                                                        Map<String, Object> cartMap = new HashMap<>();
+                                                        cartMap.put("list_size", Long.parseLong("0"));
+
+                                                        Map<String, Object> myAddressesMap = new HashMap<>();
+                                                        myAddressesMap.put("list_size", Long.parseLong("0"));
                                                         ///maps
 
                                                         List<String> documentName = new ArrayList<>();
                                                         documentName.add("MY_WISHLIST");
                                                         documentName.add("MY_RATINGS");
+                                                        documentName.add("MY_CART");
+                                                        documentName.add("MY_ADDRESSES");
 
                                                         final List<Map<String, Object>> documentFields = new ArrayList<>();
                                                         documentFields.add(wishListMap);
                                                         documentFields.add(ratingsMap);
-
+                                                        documentFields.add(cartMap);
+                                                        documentFields.add(myAddressesMap);
 
                                                         for (int i = 0; i < documentName.size(); i++) {
                                                             final int finalI = i;

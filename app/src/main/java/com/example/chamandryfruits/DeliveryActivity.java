@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,11 @@ public class DeliveryActivity extends AppCompatActivity {
     private Button changeOrAddNewAddressBtn;
 
     public static final int SELECT_ADDRESS = 0;
+    private TextView totalAmount;
 
+    private TextView fullName;
+    private TextView fullAddress;
+    private TextView pinCode;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -41,21 +46,20 @@ public class DeliveryActivity extends AppCompatActivity {
 
         deliveryRecyclerView = findViewById(R.id.delivery_recyclerview);
         changeOrAddNewAddressBtn = findViewById(R.id.change_or_add_address_button);
+        totalAmount = findViewById(R.id.total_cart_amount);
 
-        List<CartItemModel> cartItemModelList = new ArrayList<>();
-        cartItemModelList.add(new CartItemModel(0, R.mipmap.phone2, "Pixel 2", 3, "Rs.49999/-",3,2,"Rs.59999/-",0));
-        cartItemModelList.add(new CartItemModel(0, R.mipmap.phone2, "Pixel 3", 2, "Rs.69999/-",0,0,"Rs.159999/-",2));
-        cartItemModelList.add(new CartItemModel(0, R.mipmap.phone2, "Pixel 4", 1, "Rs.79999/-",2,0,"Rs.259999/-",3));
-        cartItemModelList.add(new CartItemModel(0, R.mipmap.phone2, "Pixel 5", 4, "Rs.89999/-",1,1,"Rs.459999/-",1));
 
-        cartItemModelList.add(new CartItemModel(1,"Price(3) items","Rs.49999/-","Free", "Rs.9999/-", "Rs.499999/-"));
+        fullName = findViewById(R.id.fullname);
+        fullAddress = findViewById(R.id.adress);
+        pinCode = findViewById(R.id.pincode);
+
 
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         deliveryRecyclerView.setLayoutManager(layoutManager);
 
-        CartAdapter cartAdapter = new CartAdapter(cartItemModelList);
+        CartAdapter cartAdapter = new CartAdapter(DBQueries.cartItemModels, totalAmount, false);
         deliveryRecyclerView.setAdapter(cartAdapter);
         cartAdapter.notifyDataSetChanged();
 
@@ -69,7 +73,23 @@ public class DeliveryActivity extends AppCompatActivity {
             }
         });
 
+
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (DBQueries.selectedAddress >= 0) {
+            fullName.setText(DBQueries.addressesModels.get(DBQueries.selectedAddress).getFullName());
+            fullAddress.setText(DBQueries.addressesModels.get(DBQueries.selectedAddress).getAddress());
+            pinCode.setText(DBQueries.addressesModels.get(DBQueries.selectedAddress).getPinCode());
+        } else {
+            fullName.setText(DBQueries.addressesModels.get(DBQueries.selectedAddress + 1).getFullName());
+            fullAddress.setText(DBQueries.addressesModels.get(DBQueries.selectedAddress+ 1).getAddress());
+            pinCode.setText(DBQueries.addressesModels.get(DBQueries.selectedAddress+ 1).getPinCode());
+        }
+
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
