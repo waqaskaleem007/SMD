@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,9 @@ public class HomeFragment extends Fragment {
     private ImageView noInternetConnection;
     private ConnectivityManager connectivityManager;
     private NetworkInfo networkInfo;
+
+
+
 
     private Button retryButton;
 
@@ -184,10 +189,15 @@ public class HomeFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void reloadPage(){
         networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        DBQueries.clearData();
+        /*
         categoryModels.clear();
         lists.clear();
         loadedCategoriesNames.clear();
 
+
+         */
         if (networkInfo != null && networkInfo.isConnected()) {
             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             toolbar.setNavigationIcon(R.mipmap.navbar_mobile);

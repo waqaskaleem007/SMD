@@ -1,5 +1,8 @@
 package com.example.chamandryfruits;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CartItemModel {
 
     public static final int CART_ITEM = 0;
@@ -20,11 +23,16 @@ public class CartItemModel {
     private String productImage;
     private String productTitle;
     private Long productQuantity;
+    private Long maxQuantity;
+    private Long stockQuantity;
     private String productPrice;
     private Long freeCoupons;
     private Long couponsApplied;
     private String cuttedPrice;
     private Long offersApplied;
+    private boolean inStock;
+    private List<String> qtyIds;
+    private boolean qtyError;
 
 
     public String getProductId() {
@@ -35,7 +43,47 @@ public class CartItemModel {
         this.productId = productId;
     }
 
-    public CartItemModel(int type, String productId, String productImage, String productTitle, Long productQuantity, String productPrice, Long freeCoupons, Long couponsApplied, String cuttedPrice, Long offersApplied) {
+    public boolean isInStock() {
+        return inStock;
+    }
+
+    public void setInStock(boolean inStock) {
+        this.inStock = inStock;
+    }
+
+    public Long getMaxQuantity() {
+        return maxQuantity;
+    }
+
+    public void setMaxQuantity(Long maxQuantity) {
+        this.maxQuantity = maxQuantity;
+    }
+
+    public List<String> getQtyIds() {
+        return qtyIds;
+    }
+
+    public void setQtyIds(List<String> qtyIds) {
+        this.qtyIds = qtyIds;
+    }
+
+    public Long getStockQuantity() {
+        return stockQuantity;
+    }
+
+    public void setStockQuantity(Long stockQuantity) {
+        this.stockQuantity = stockQuantity;
+    }
+
+    public boolean isQtyError() {
+        return qtyError;
+    }
+
+    public void setQtyError(boolean qtyError) {
+        this.qtyError = qtyError;
+    }
+
+    public CartItemModel(int type, String productId, String productImage, String productTitle, Long productQuantity, String productPrice, Long freeCoupons, Long couponsApplied, String cuttedPrice, Long offersApplied, boolean inStock, Long maxQuantity, Long stockQuantity) {
         this.type = type;
         this.productId = productId;
         this.productImage = productImage;
@@ -46,6 +94,11 @@ public class CartItemModel {
         this.couponsApplied = couponsApplied;
         this.cuttedPrice = cuttedPrice;
         this.offersApplied = offersApplied;
+        this.inStock = inStock;
+        this.maxQuantity = maxQuantity;
+        qtyIds = new ArrayList<>();
+        this.stockQuantity = stockQuantity;
+        this.qtyError = false;
     }
 
     public static int getCartItem() {

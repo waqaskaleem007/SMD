@@ -3,11 +3,11 @@
 
     <item>
         <shape>
-            <solid android:color="@color/colorPrimary"/>
+            <solid android:color="@color/colorAccent"/>
         </shape>
     </item>
     <item>
-        <bitmap android:src="@mipmap/logo" android:gravity="center"/>
+        <bitmap android:src="@mipmap/chaman_logo" android:gravity="center"/>
     </item>
 
 

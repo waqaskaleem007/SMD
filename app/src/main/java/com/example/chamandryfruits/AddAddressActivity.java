@@ -109,15 +109,15 @@ public class AddAddressActivity extends AppCompatActivity {
                                 if (!TextUtils.isEmpty(name.getText())) {
                                     if (!TextUtils.isEmpty(mobileNo.getText()) && mobileNo.getText().length() == 11) {
                                         loadingDialog.show();
-                                        Map<String, Object> addAddress = new HashMap<>();
                                         final String fullAddress = flatNumber.getText().toString() + " " + locality.getText().toString() + " " + landMark.getText().toString() + " " + city.getText().toString() + " " + selectedState;
-
+                                        Map<String, Object> addAddress = new HashMap<>();
                                         addAddress.put("list_size", (long) DBQueries.addressesModels.size() + 1);
                                         if (TextUtils.isEmpty(alternateMobileNo.getText())) {
-                                            addAddress.put("fullname_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), name.getText().toString() + " - " + mobileNo.getText().toString());
+                                            addAddress.put("mobile_no_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), mobileNo.getText().toString());
                                         } else {
-                                            addAddress.put("fullname_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), name.getText().toString() + " - " + mobileNo.getText().toString() + " or " + alternateMobileNo.getText().toString());
+                                            addAddress.put("mobile_no_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), mobileNo.getText().toString() + " or " + alternateMobileNo.getText().toString());
                                         }
+                                        addAddress.put("fullname_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), name.getText().toString());
                                         addAddress.put("address_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), fullAddress);
                                         addAddress.put("pincode_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), pinCode.getText().toString());
                                         addAddress.put("selected_" + String.valueOf((long) DBQueries.addressesModels.size() + 1), true);
@@ -137,9 +137,9 @@ public class AddAddressActivity extends AppCompatActivity {
                                                         DBQueries.addressesModels.get(DBQueries.selectedAddress).setSelected(false);
                                                     }
                                                     if (TextUtils.isEmpty(alternateMobileNo.getText())) {
-                                                        DBQueries.addressesModels.add(new AddressesModel(name.getText().toString() + " - " + mobileNo.getText().toString(), fullAddress, pinCode.getText().toString(), true));
+                                                        DBQueries.addressesModels.add(new AddressesModel(name.getText().toString(), fullAddress, pinCode.getText().toString(), true, mobileNo.getText().toString()));
                                                     } else {
-                                                        DBQueries.addressesModels.add(new AddressesModel(name.getText().toString() + " - " + mobileNo.getText().toString() + " or " + alternateMobileNo.getText().toString(), fullAddress, pinCode.getText().toString(), true));
+                                                        DBQueries.addressesModels.add(new AddressesModel(name.getText().toString(), fullAddress, pinCode.getText().toString(), true, mobileNo.getText().toString() + " or " + alternateMobileNo.getText().toString()));
                                                     }
 
 

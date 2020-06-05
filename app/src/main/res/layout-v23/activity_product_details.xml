@@ -55,6 +55,7 @@
                 android:visibility="gone" />
 
             <include layout="@layout/ratings_layout" />
+            <include layout="@layout/monetization_layout"/>
         </LinearLayout>
     </ScrollView>
 
@@ -103,7 +104,6 @@
             android:textStyle="bold"
             android:layout_weight="1"
             android:stateListAnimator="@null"/>
-
 
     </LinearLayout>
 

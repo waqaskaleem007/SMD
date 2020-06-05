@@ -1,5 +1,7 @@
 package com.example.chamandryfruits;
 
+import java.util.ArrayList;
+
 public class WishListModel {
     private String productId;
     private String productImage;
@@ -10,6 +12,8 @@ public class WishListModel {
     private String productPrice;
     private String cuttedPrice;
     private boolean cod;
+    private boolean inStock;
+    private ArrayList<String> tags;
 
     public String getProductImage() {
         return productImage;
@@ -83,7 +87,23 @@ public class WishListModel {
         this.productId = productId;
     }
 
-    public WishListModel(String productId, String productImage, String productTitle, long freeCoupons, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean cod) {
+    public boolean isInStock() {
+        return inStock;
+    }
+
+    public void setInStock(boolean inStock) {
+        this.inStock = inStock;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
+    }
+
+    public WishListModel(String productId, String productImage, String productTitle, long freeCoupons, String rating, long totalRatings, String productPrice, String cuttedPrice, boolean cod, boolean inStock) {
         this.productId = productId;
         this.productImage = productImage;
         this.productTitle = productTitle;
@@ -93,5 +113,6 @@ public class WishListModel {
         this.productPrice = productPrice;
         this.cuttedPrice = cuttedPrice;
         this.cod = cod;
+        this.inStock = inStock;
     }
 }

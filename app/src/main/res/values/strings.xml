@@ -97,6 +97,16 @@
     <string name="price_after_coupon_redemption">Price After Coupon Redemption</string>
     <string name="retry">Retry</string>
     <string name="loading">Loading...</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="cash_on_delivery">Cash on Delivery</string>
+    <string name="credit_card">Credit Card</string>
+    <string name="thank_you">Thank you</string>
+    <string name="your_order_has_been_confirmed">Your order has been confirmed</string>
+    <string name="continue_shopping">Continue Shopping</string>
+    <string name="verification_code_has_been_sent_to_92_3334337777">Verification code has been sent to +92 3334337777</string>
+    <string name="enter_code">Enter code</string>
+    <string name="please_wait_it_can_take_60s_120s_to_receive_verification_code">Please Wait, it can take 60s - 120s to receive verification code</string>
+    <string name="product_not_found">Product not found!</string>
 
 
     <string-array name="pakistan_states">
@@ -106,7 +116,6 @@
         <item>Balochistan</item>
         <item>Gilgit-Baltistan</item>
     </string-array>
-
 
 
 </resources>

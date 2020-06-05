@@ -1,11 +1,14 @@
 package com.example.chamandryfruits;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.nfc.cardemulation.HostNfcFService;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -17,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -43,7 +47,7 @@ import java.util.Objects;
 
 import static com.example.chamandryfruits.RegisterActivity.setSignUpFragment;
 
-public class Home extends AppCompatActivity {
+public class Home extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int HOME_FRAGMENT = 0;
     private static final int ORDERS_FRAGMENT = 1;
@@ -52,14 +56,16 @@ public class Home extends AppCompatActivity {
     private static final int WISHLIST_FRAGMENT = 4;
     private static final int ACCOUNT_FRAGMENT = 5;
     public static boolean showCart = false;
+    public static boolean restHome = false;
 
     private ImageView mainLogo;
     private AppBarConfiguration mAppBarConfiguration;
-    private FrameLayout frameLayout;
+    public static FrameLayout frameLayout;
     private ImageView noInternetConnection;
     private NavigationView navigationView;
     public static DrawerLayout drawer;
     private int currentFragment = -1;
+    public static Activity mainActivity;
 
     private Window window;
     public static Toolbar toolbar;
@@ -73,6 +79,8 @@ public class Home extends AppCompatActivity {
     private int previousPosition = 0;
     private int currentPosition = 0;
 
+
+    MenuItem item;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -102,70 +110,20 @@ public class Home extends AppCompatActivity {
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
                 .setDrawerLayout(drawer)
                 .build();
+
         final NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navigationView, navController);
         navigationView.getMenu().getItem(0).setChecked(true);
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                        if (currentUser != null) {
-                            int id = menuItem.getItemId();
-                            if (id == R.id.nav_my_mall) {
-                                mainLogo.setVisibility(View.VISIBLE);
-                                invalidateOptionsMenu();
-                                currentPosition = HOME_FRAGMENT;
-                                navigationView.getMenu().getItem(previousPosition).setChecked(false);
-                                navigationView.getMenu().getItem(0).setChecked(true);
-                                previousPosition = 0;
-                                SetFragment(new HomeFragment(), HOME_FRAGMENT);
-                                return true;
-                            } else if (id == R.id.nav_my_account) {
-                                currentPosition = ACCOUNT_FRAGMENT;
-                                GoToFragment("My Account", new MyAccountFragment(), ACCOUNT_FRAGMENT);
-                                return true;
-                            } else if (id == R.id.nav_my_cart) {
-                                currentPosition = CART_FRAGMENT;
-                                drawer.closeDrawers();
-                                GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
-                                return true;
-                            } else if (id == R.id.nav_my_orders) {
-                                currentPosition = ORDERS_FRAGMENT;
-                                GoToFragment("My Orders", new MyOrdersFragment(), ORDERS_FRAGMENT);
-                                return true;
-                            } else if (id == R.id.nav_my_rewards) {
-                                currentPosition = REWARDS_FRAGMENT;
-                                GoToFragment("My Rewards", new MyRewardsFragment(), REWARDS_FRAGMENT);
-                                return true;
-                            } else if (id == R.id.nav_my_wishlist) {
-                                currentPosition = WISHLIST_FRAGMENT;
-                                GoToFragment("My Wishlist", new MyWishListFragment(), WISHLIST_FRAGMENT);
-                                return true;
-                            } else if (id == R.id.sign_out) {
-                                FirebaseAuth.getInstance().signOut();
-                                DBQueries.clearData();
-                                Intent registerIntent = new Intent(Home.this, RegisterActivity.class);
-                                startActivity(registerIntent);
-                                finish();
-                                return true;
-                            }
-                            menuItem.setChecked(true);
-                            //drawerLayout.closeDrawers();
-                            return true;
-                        } else {
-                            drawer.closeDrawer(GravityCompat.START);
-                            signInDialog.show();
-                            return false;
-                        }
-                    }
-                });
+        ////baki method ma jaye ga
 
         frameLayout = findViewById(R.id.main_layout);
+        boolean cart = getIntent().getBooleanExtra("CART", false);
         if (showCart) {
             drawer.closeDrawers();
-            //drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            mainActivity = this;
+            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-            GoToFragment("My Cart", new MyCartFragment(), -2);
+            GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
         } else {
             NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
             SetFragment(new HomeFragment(), HOME_FRAGMENT);
@@ -198,18 +156,28 @@ public class Home extends AppCompatActivity {
                 startActivity(registerIntent);
             }
         });
+        onNavigationItemSelected(item);
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onStart() {
         super.onStart();
+        onNavigationItemSelected(item);
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(false);
         } else {
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
         }
+        if (restHome) {
+            restHome = false;
+            mainLogo.setVisibility(View.VISIBLE);
+            SetFragment(new HomeFragment(), HOME_FRAGMENT);
+            navigationView.getMenu().getItem(0).setChecked(true);
+        }
+
         invalidateOptionsMenu();
 
     }
@@ -225,6 +193,7 @@ public class Home extends AppCompatActivity {
                 super.onBackPressed();
             } else {
                 if (showCart) {
+                    mainActivity = null;
                     showCart = false;
                     finish();
                 } else {
@@ -244,6 +213,8 @@ public class Home extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.main_search_icon) {
+            Intent searchIntent = new Intent(this, SearchActivity.class);
+            startActivity(searchIntent);
             return true;
         } else if (id == R.id.main_notification_icon) {
             return true;
@@ -257,6 +228,7 @@ public class Home extends AppCompatActivity {
 
         } else if (id == android.R.id.home) {
             if (showCart) {
+                mainActivity = null;
                 showCart = false;
                 finish();
                 return true;
@@ -267,8 +239,9 @@ public class Home extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void GoToFragment(String title, Fragment fragment, int fragmentNo) {
+    public void GoToFragment(String title, Fragment fragment, int fragmentNo) {
 
+        onNavigationItemSelected(item);
         navigationView.getMenu().getItem(previousPosition).setChecked(false);
         navigationView.getMenu().getItem(currentPosition).setChecked(true);
         previousPosition = currentPosition;
@@ -281,10 +254,9 @@ public class Home extends AppCompatActivity {
         invalidateOptionsMenu();
         SetFragment(fragment, fragmentNo);
 
-        if (fragmentNo == CART_FRAGMENT) {
-
+        if (fragmentNo == CART_FRAGMENT || showCart) {
             params.setScrollFlags(0);
-        }else {
+        } else {
             params.setScrollFlags(scrollFlags);
         }
     }
@@ -307,7 +279,7 @@ public class Home extends AppCompatActivity {
 
             if (currentUser != null) {
                 if (DBQueries.cartList.size() == 0) {
-                    DBQueries.LoadCartList(Home.this, new Dialog(Home.this), false, badgeCount);
+                    DBQueries.LoadCartList(Home.this, new Dialog(Home.this), false, badgeCount, new TextView(Home.this));
                 } else {
                     badgeCount.setVisibility(View.VISIBLE);
                     if (DBQueries.cartList.size() < 99) {
@@ -360,6 +332,82 @@ public class Home extends AppCompatActivity {
         }
     }
 
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                        drawer.closeDrawer(GravityCompat.START);
+                        item = menuItem;
+
+                        if (currentUser != null) {
+                            int id = item.getItemId();
+                            if (id == R.id.nav_my_mall) {
+                                mainLogo.setVisibility(View.VISIBLE);
+                                invalidateOptionsMenu();
+                                currentPosition = HOME_FRAGMENT;
+                                navigationView.getMenu().getItem(previousPosition).setChecked(false);
+                                navigationView.getMenu().getItem(0).setChecked(true);
+                                previousPosition = 0;
+                                SetFragment(new HomeFragment(), HOME_FRAGMENT);
+                            } else if (id == R.id.nav_my_account) {
+                                currentPosition = ACCOUNT_FRAGMENT;
+                                drawer.closeDrawer(GravityCompat.START);
+                                GoToFragment("My Account", new MyAccountFragment(), ACCOUNT_FRAGMENT);
+                            } else if (id == R.id.nav_my_cart) {
+                                currentPosition = CART_FRAGMENT;
+                                drawer.closeDrawer(GravityCompat.START);
+                                GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
+                            } else if (id == R.id.nav_my_orders) {
+                                currentPosition = ORDERS_FRAGMENT;
+                                drawer.closeDrawer(GravityCompat.START);
+                                GoToFragment("My Orders", new MyOrdersFragment(), ORDERS_FRAGMENT);
+                            } else if (id == R.id.nav_my_rewards) {
+                                currentPosition = REWARDS_FRAGMENT;
+                                drawer.closeDrawer(GravityCompat.START);
+                                GoToFragment("My Rewards", new MyRewardsFragment(), REWARDS_FRAGMENT);
+                            } else if (id == R.id.nav_my_wishlist) {
+                                currentPosition = WISHLIST_FRAGMENT;
+                                drawer.closeDrawer(GravityCompat.START);
+                                GoToFragment("My Wishlist", new MyWishListFragment(), WISHLIST_FRAGMENT);
+                            } else if (id == R.id.sign_out) {
+                                FirebaseAuth.getInstance().signOut();
+                                DBQueries.clearData();
+                                Intent registerIntent = new Intent(Home.this, RegisterActivity.class);
+                                startActivity(registerIntent);
+                                finish();
+                            }
+                            menuItem.setChecked(true);
+                            //drawerLayout.closeDrawers();
+                            return true;
+                        } else {
+                            drawer.closeDrawer(GravityCompat.START);
+                            signInDialog.show();
+                            return false;
+                        }
+                    }
+                });
+
+        return true;
+    }
+
+    public class CartBroadCast extends BroadcastReceiver {
+
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Objects.equals(intent.getAction(), "SHOW_CART")) {
+                mainActivity = Home.this;
+                drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+                GoToFragment("My Cart", new MyCartFragment(), CART_FRAGMENT);
+            }
+        }
+    }
 
 }
 

@@ -44,7 +44,7 @@ public class MyAddressesActivity extends AppCompatActivity {
     private TextView addressesSaved;
     private Dialog loadingDialog;
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

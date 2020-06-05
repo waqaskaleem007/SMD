@@ -2,6 +2,7 @@ package com.example.chamandryfruits;
 
 public class AddressesModel {
     private String fullName;
+    private String mobileNo;
     private String address;
     private String pinCode;
     private boolean selected;
@@ -37,10 +38,19 @@ public class AddressesModel {
         this.selected = selected;
     }
 
-    public AddressesModel(String fullName, String address, String pinCode, boolean selected) {
+    public String getMobileNo() {
+        return mobileNo;
+    }
+
+    public void setMobileNo(String mobileNo) {
+        this.mobileNo = mobileNo;
+    }
+
+    public AddressesModel(String fullName, String address, String pinCode, boolean selected, String mobileNo) {
         this.fullName = fullName;
         this.address = address;
         this.pinCode = pinCode;
         this.selected = selected;
+        this.mobileNo = mobileNo;
     }
 }
