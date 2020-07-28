@@ -33,7 +33,24 @@ public class CartItemModel {
     private boolean inStock;
     private List<String> qtyIds;
     private boolean qtyError;
+    private String selectedCouponId;
+    private String discountedPrice;
 
+    public String getDiscountedPrice() {
+        return discountedPrice;
+    }
+
+    public void setDiscountedPrice(String discountedPrice) {
+        this.discountedPrice = discountedPrice;
+    }
+
+    public String getSelectedCouponId() {
+        return selectedCouponId;
+    }
+
+    public void setSelectedCouponId(String selectedCouponId) {
+        this.selectedCouponId = selectedCouponId;
+    }
 
     public String getProductId() {
         return productId;
@@ -175,6 +192,11 @@ public class CartItemModel {
 
 ////cart item
 
+    private int totalItems;
+    private int totalItemPrice;
+    private String deliveryPrice;
+    private int cartTotalAmount;
+    private int saveAmount;
     /////cart Total amount
     public CartItemModel(int type) {
         this.type = type;
@@ -182,7 +204,43 @@ public class CartItemModel {
     /////cart Total amount
 
 
+    public int getCartTotalAmount() {
+        return cartTotalAmount;
+    }
 
+    public void setCartTotalAmount(int cartTotalAmount) {
+        this.cartTotalAmount = cartTotalAmount;
+    }
 
+    public int getTotalItems() {
+        return totalItems;
+    }
 
+    public void setTotalItems(int totalItems) {
+        this.totalItems = totalItems;
+    }
+
+    public int getTotalItemPrice() {
+        return totalItemPrice;
+    }
+
+    public void setTotalItemPrice(int totalItemPrice) {
+        this.totalItemPrice = totalItemPrice;
+    }
+
+    public String getDeliveryPrice() {
+        return deliveryPrice;
+    }
+
+    public void setDeliveryPrice(String deliveryPrice) {
+        this.deliveryPrice = deliveryPrice;
+    }
+
+    public int getSaveAmount() {
+        return saveAmount;
+    }
+
+    public void setSaveAmount(int saveAmount) {
+        this.saveAmount = saveAmount;
+    }
 }

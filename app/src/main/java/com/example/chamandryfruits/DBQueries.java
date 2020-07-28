@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,7 @@ public class DBQueries {
     public static List<AddressesModel> addressesModels = new ArrayList<>();
     public static int selectedAddress = -1;
 
+    public static List<RewardsModel> rewardsModels = new ArrayList<>();
 
     public static int createdReceipt = 0;
 
@@ -376,7 +379,7 @@ public class DBQueries {
                                                                 (long) Objects.requireNonNull(documentSnapshot.get("free_coupons")),
                                                                 (long) 1,
                                                                 Objects.requireNonNull(documentSnapshot.get("cutted_price")).toString(),
-                                                                (long) 1,
+                                                                (long) documentSnapshot.get("offers_applied"),
                                                                 true,
                                                                 (long) documentSnapshot.get("max_quantity"),
                                                                 (long) documentSnapshot.get("stock_quantity")));
@@ -384,7 +387,7 @@ public class DBQueries {
                                                         cartItemModels.add(index, new CartItemModel(CartItemModel.CART_ITEM, productId,
                                                                 Objects.requireNonNull(documentSnapshot.get("product_image_1")).toString(),
                                                                 Objects.requireNonNull(documentSnapshot.get("product_title")).toString(),
-                                                                (long) 1,
+                                                                (long) documentSnapshot.get("offers_applied"),
                                                                 Objects.requireNonNull(documentSnapshot.get("product_price")).toString(),
                                                                 (long) Objects.requireNonNull(documentSnapshot.get("free_coupons")),
                                                                 (long) 1,
@@ -521,6 +524,67 @@ public class DBQueries {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public static void LoadRewards(final Context context, final Dialog loadingDialog, final Boolean onRewardFragment) {
+        rewardsModels.clear();
+        firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    final Date lastSeenDate = task.getResult().getDate("Last Seen");
+
+                    firebaseFirestore.collection("USERS").document(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).collection("USER_REWARDS")
+                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot documentSnapshot : Objects.requireNonNull(task.getResult())) {
+                                    if (Objects.requireNonNull(documentSnapshot.get("type")).toString().equals("Discount") && Objects.requireNonNull(lastSeenDate).before(documentSnapshot.getDate("validity"))) {
+                                        rewardsModels.add(new RewardsModel(documentSnapshot.getId(),
+                                                Objects.requireNonNull(documentSnapshot.get("type")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("lower_limit")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("upper_limit")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("percentage")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("body")).toString(),
+                                                (Timestamp) documentSnapshot.get("validity"),
+                                                (Boolean) documentSnapshot.get("already_used")));
+                                    } else if (Objects.requireNonNull(documentSnapshot.get("type")).toString().equals("Flat Rs.*OFF") && Objects.requireNonNull(lastSeenDate).before(documentSnapshot.getDate("validity"))) {
+
+                                        rewardsModels.add(new RewardsModel(documentSnapshot.getId(),
+                                                Objects.requireNonNull(documentSnapshot.get("type")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("lower_limit")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("upper_limit")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("amount")).toString(),
+                                                Objects.requireNonNull(documentSnapshot.get("body")).toString(),
+                                                (com.google.firebase.Timestamp) documentSnapshot.get("validity"),
+                                                (Boolean) documentSnapshot.get("already_used")));
+                                    }
+                                }
+                                if(onRewardFragment) {
+                                    MyRewardsFragment.myRewardsAdapter.notifyDataSetChanged();
+                                }
+                            } else {
+                                String error = Objects.requireNonNull(task.getException()).getMessage();
+                                Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                            }
+                            loadingDialog.dismiss();
+
+                        }
+                    });
+
+                } else {
+                    loadingDialog.dismiss();
+                    String error = Objects.requireNonNull(task.getException()).getMessage();
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+    }
+
     public static void clearData() {
         categoryModels.clear();
         lists.clear();
@@ -532,6 +596,7 @@ public class DBQueries {
         myRatedIds.clear();
         myRating.clear();
         addressesModels.clear();
+        rewardsModels.clear();
     }
 
 

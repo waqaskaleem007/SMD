@@ -107,6 +107,11 @@
     <string name="enter_code">Enter code</string>
     <string name="please_wait_it_can_take_60s_120s_to_receive_verification_code">Please Wait, it can take 60s - 120s to receive verification code</string>
     <string name="product_not_found">Product not found!</string>
+    <string name="tap_the_icon_on_tha_top_right_corner_to_select_your_coupon">Tap the icon on tha top right corner to select your coupon</string>
+    <string name="coupon">Coupon</string>
+    <string name="coupon_validity">Coupon validity</string>
+    <string name="apply">apply</string>
+    <string name="apply_your_coupon_here">Apply your coupon here</string>
 
 
     <string-array name="pakistan_states">

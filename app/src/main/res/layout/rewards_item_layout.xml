@@ -25,15 +25,18 @@
 
     <TextView
         android:id="@+id/rewards_coupon_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:text="@string/discount_coupon"
         android:textColor="@color/colorAccent"
-        android:textStyle="bold"
         android:textSize="16sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/rewards_coupon_icon"
+        app:layout_constraintEnd_toStartOf="@+id/rewards_coupon_validity"
         app:layout_constraintStart_toEndOf="@+id/rewards_coupon_icon"
         app:layout_constraintTop_toTopOf="@+id/rewards_coupon_icon" />
 

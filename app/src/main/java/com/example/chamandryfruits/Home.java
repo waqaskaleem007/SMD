@@ -107,7 +107,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
         Objects.requireNonNull(signInDialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_my_mall, R.id.nav_my_orders, R.id.nav_my_rewards)
                 .setDrawerLayout(drawer)
                 .build();
 
@@ -278,6 +278,7 @@ public class Home extends AppCompatActivity implements NavigationView.OnNavigati
             badgeIcon.setImageResource(R.mipmap.cart_white);
 
             if (currentUser != null) {
+
                 if (DBQueries.cartList.size() == 0) {
                     DBQueries.LoadCartList(Home.this, new Dialog(Home.this), false, badgeCount, new TextView(Home.this));
                 } else {

@@ -28,6 +28,7 @@ import android.os.RemoteException;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -45,6 +46,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -79,7 +81,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
     public static CartAdapter cartAdapter;
 
-    private Dialog loadingDialog;
+    public static Dialog loadingDialog;
     private Dialog paymentMethodDialog;
     private ImageView creditCart, cod;
 
@@ -93,8 +95,8 @@ public class DeliveryActivity extends AppCompatActivity {
     public static boolean codOrderConfirmed = false;
 
     private FirebaseFirestore firebaseFirestore;
-    public static boolean allProductsAvailable;
     public static boolean getQtyIds = true;
+    private String paymentMethod = "PAYTM";
 
     OTPService dataService;
     Messenger messenger;
@@ -108,6 +110,7 @@ public class DeliveryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_delivery);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -135,7 +138,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
         firebaseFirestore = FirebaseFirestore.getInstance();
         getQtyIds = true;
-        allProductsAvailable = true;
+
 
         deliveryRecyclerView = findViewById(R.id.delivery_recyclerview);
         changeOrAddNewAddressBtn = findViewById(R.id.change_or_add_address_button);
@@ -175,142 +178,32 @@ public class DeliveryActivity extends AppCompatActivity {
         cod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getQtyIds = false;
-                paymentMethodDialog.dismiss();
-                Message message = Message.obtain(null, 1);
-                // may send some data along in form of Bundle
-                Intent otpIntent = new Intent(DeliveryActivity.this, OTPVerificationActivity.class);
-                otpIntent.putExtra("mobileNo", mobileNo.substring(0, 10));
-                startActivity(otpIntent);
+                paymentMethod = "cod";
+                placeOrderDetails();
             }
         });
 
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean allProductsAvailable = true;
+                for (CartItemModel cartItemModel : cartItemModels) {
+                    if (cartItemModel.isQtyError()) {
+                        allProductsAvailable = false;
+                    }
+                }
                 if (allProductsAvailable) {
                     paymentMethodDialog.show();
-                } else {
-                    /////nothing
                 }
             }
         });
         creditCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getQtyIds = false;
-                paymentMethodDialog.dismiss();
-                loadingDialog.show();
-                if (ContextCompat.checkSelfPermission(DeliveryActivity.this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(DeliveryActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 101);
-                }
-
-                final String M_id = "YlutwW84809962366406";
-                final String customer_id = FirebaseAuth.getInstance().getUid();
-                order_id = UUID.randomUUID().toString().substring(0, 28);
-                final String url = "https://planned-finishes.000webhostapp.com/paytm/generateChecksum.php";
-                final String callBack = "https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp";
-                RequestQueue requestQueue = Volley.newRequestQueue(DeliveryActivity.this);
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            if (jsonObject.has("CHECKSUMHASH")) {
-                                String CHECKSUMHASH = jsonObject.getString("CHECKSUMHASH");
-                                PaytmPGService paytmPGService = PaytmPGService.getStagingService(url);
-                                HashMap<String, String> paramMap = new HashMap<String, String>();
-                                paramMap.put("MID", M_id);
-                                paramMap.put("ORDER_ID", order_id);
-                                paramMap.put("CUST_ID", customer_id);
-                                paramMap.put("CHANNEL_ID", "WAP");
-                                paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
-                                paramMap.put("WEBSITE", "WEBSTAGING");
-                                paramMap.put("INDUSTRY_TYPE_ID", "Retail");
-                                paramMap.put("CALLBACK_URL", callBack);
-                                paramMap.put("CHECKSUMHASH", CHECKSUMHASH);
-
-                                PaytmOrder order = new PaytmOrder(paramMap);
-
-                                paytmPGService.initialize(order, null);
-                                paytmPGService.startPaymentTransaction(DeliveryActivity.this, true, true, new PaytmPaymentTransactionCallback() {
-                                    @Override
-                                    public void onTransactionResponse(Bundle inResponse) {
-                                        //Toast.makeText(getApplicationContext(), "Payment Transaction response " + inResponse.toString(), Toast.LENGTH_LONG).show();
-                                        if (success) {
-                                            ShowConfirmationLayout();
-                                        } else {
-                                            orderConfirmationLayout.setVisibility(View.GONE);
-                                        }
-
-                                    }
-
-                                    @Override
-                                    public void networkNotAvailable() {
-                                        Toast.makeText(getApplicationContext(), "Network connection error: Check your internet connectivity", Toast.LENGTH_LONG).show();
-                                    }
-
-                                    @Override
-                                    public void clientAuthenticationFailed(String inErrorMessage) {
-                                        Toast.makeText(getApplicationContext(), "Authentication failed: Server error" + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
-                                    }
-
-                                    @Override
-                                    public void someUIErrorOccurred(String inErrorMessage) {
-                                        Toast.makeText(getApplicationContext(), "UI Error " + inErrorMessage, Toast.LENGTH_LONG).show();
-                                    }
-
-                                    @Override
-                                    public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
-                                        Toast.makeText(getApplicationContext(), "Unable to load webpage " + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
-
-                                    }
-
-                                    @Override
-                                    public void onBackPressedCancelTransaction() {
-                                        //Toast.makeText(getApplicationContext(), "Transaction cancelled" , Toast.LENGTH_LONG).show();
-                                        //if (success) {
-                                            ShowConfirmationLayout();
-                                        //} else {
-                                            //orderConfirmationLayout.setVisibility(View.GONE);
-                                        //}
-                                    }
-
-                                    @Override
-                                    public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
-                                        Toast.makeText(getApplicationContext(), "Transaction cancelled", Toast.LENGTH_LONG).show();
-                                    }
-                                });
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        loadingDialog.dismiss();
-                        Toast.makeText(DeliveryActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
-                    }
-                }) {
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String, String> paramMap = new HashMap<String, String>();
-                        paramMap.put("MID", M_id);
-                        paramMap.put("ORDER_ID", order_id);
-                        paramMap.put("CUST_ID", customer_id);
-                        paramMap.put("CHANNEL_ID", "WAP");
-                        paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
-                        paramMap.put("WEBSITE", "WEBSTAGING");
-                        paramMap.put("INDUSTRY_TYPE_ID", "Retail");
-                        paramMap.put("CALLBACK_URL", callBack);
-                        return paramMap;
-                    }
-                };
-                requestQueue.add(stringRequest);
-
+                paymentMethod = "CreditCard";
+                placeOrderDetails();
             }
+
         });
 
         startDataSyncService();
@@ -359,6 +252,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
         cartAdapter.notifyDataSetChanged();
         if (getQtyIds) {
+            loadingDialog.show();
             /////code to access quantity
             for (int i = 0; i < cartItemModels.size() - 1; i++) {
                 for (int j = 0; j < cartItemModels.get(i).getProductQuantity(); j++) {
@@ -368,53 +262,62 @@ public class DeliveryActivity extends AppCompatActivity {
                     final int finalI = i;
                     final int finalJ = j;
                     firebaseFirestore.collection("PRODUCTS").document(cartItemModels.get(i).getProductId()).collection("QUANTITY")
-                            .document(qtyDocumentName).set(timeStamp).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            cartItemModels.get(finalI).getQtyIds().add(qtyDocumentName);
-                            if (finalJ + 1 == cartItemModels.get(finalI).getProductQuantity()) {
-                                firebaseFirestore.collection("PRODUCTS").document(cartItemModels.get(finalI).getProductId()).collection("QUANTITY")
-                                        .orderBy("time", Query.Direction.ASCENDING)
-                                        .limit(cartItemModels.get(finalI).getStockQuantity())
-                                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            List<String> serverQty = new ArrayList<>();
+                            .document(qtyDocumentName).set(timeStamp)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        cartItemModels.get(finalI).getQtyIds().add(qtyDocumentName);
+                                        if (finalJ + 1 == cartItemModels.get(finalI).getProductQuantity()) {
+                                            firebaseFirestore.collection("PRODUCTS").document(cartItemModels.get(finalI).getProductId()).collection("QUANTITY")
+                                                    .orderBy("time", Query.Direction.ASCENDING)
+                                                    .limit(cartItemModels.get(finalI).getStockQuantity())
+                                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        List<String> serverQty = new ArrayList<>();
 
-                                            for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
-                                                serverQty.add(queryDocumentSnapshot.getId());
-                                            }
-                                            long availableQty = 0;
-                                            boolean noLongerAvailable = true;
-                                            for (String qtyId : cartItemModels.get(finalI).getQtyIds()) {
-                                                if (!serverQty.contains(qtyId)) {
+                                                        for (QueryDocumentSnapshot queryDocumentSnapshot : Objects.requireNonNull(task.getResult())) {
+                                                            serverQty.add(queryDocumentSnapshot.getId());
+                                                        }
+                                                        long availableQty = 0;
+                                                        boolean noLongerAvailable = true;
+                                                        for (String qtyId : cartItemModels.get(finalI).getQtyIds()) {
+                                                            cartItemModels.get(finalI).setQtyError(false);
+                                                            if (!serverQty.contains(qtyId)) {
+                                                                if (noLongerAvailable) {
+                                                                    cartItemModels.get(finalI).setInStock(false);
+                                                                } else {
+                                                                    cartItemModels.get(finalI).setQtyError(true);
+                                                                    cartItemModels.get(finalI).setMaxQuantity(availableQty);
+                                                                    Toast.makeText(DeliveryActivity.this, "All products May not be available in required quantity", Toast.LENGTH_SHORT).show();
+                                                                }
 
-                                                    if (noLongerAvailable) {
-                                                        cartItemModels.get(finalI).setInStock(false);
+                                                            } else {
+                                                                availableQty++;
+                                                                noLongerAvailable = false;
+                                                            }
+
+                                                        }
+                                                        cartAdapter.notifyDataSetChanged();
+
                                                     } else {
-                                                        cartItemModels.get(finalI).setQtyError(true);
-                                                        cartItemModels.get(finalI).setMaxQuantity(availableQty);
-                                                        Toast.makeText(DeliveryActivity.this, "All products May not be available in required quantity", Toast.LENGTH_SHORT).show();
+                                                        String error = task.getException().getMessage();
+                                                        Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
                                                     }
-                                                    allProductsAvailable = false;
-                                                } else {
-                                                    availableQty++;
-                                                    noLongerAvailable = false;
+                                                    loadingDialog.dismiss();
                                                 }
-
-                                            }
-                                            cartAdapter.notifyDataSetChanged();
-
-                                        } else {
-                                            String error = task.getException().getMessage();
-                                            Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                                            });
                                         }
+                                    } else {
+                                        loadingDialog.dismiss();
+                                        String error = task.getException().getMessage();
+                                        Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
                                     }
-                                });
-                            }
-                        }
-                    });
+
+                                }
+                            });
                 }
 
 
@@ -514,6 +417,7 @@ public class DeliveryActivity extends AppCompatActivity {
                 firebaseFirestore.collection("PRODUCTS").document(cartItemModels.get(i).getProductId()).collection("QUANTITY")
                         .document(qtyId).update("user_ID", FirebaseAuth.getInstance().getUid());
             }
+
         }
 
         if (Home.mainActivity != null) {
@@ -578,17 +482,232 @@ public class DeliveryActivity extends AppCompatActivity {
 
     }
 
-    public class CartBroadcast extends BroadcastReceiver{
+    public class CartBroadcast extends BroadcastReceiver {
 
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(Objects.equals(intent.getAction(), "CLEAR_CART")){
+            if (Objects.equals(intent.getAction(), "CLEAR_CART")) {
                 String clear = intent.getStringExtra("clear");
                 startActivity(intent);
             }
         }
     }
 
+    private void placeOrderDetails() {
+        String userId = FirebaseAuth.getInstance().getUid();
+        loadingDialog.show();
+        for (CartItemModel cartItemModel : cartItemModels) {
+            if (cartItemModel.getType() == CartItemModel.CART_ITEM) {
+
+                Map<String, Object> orderDetails = new HashMap<>();
+                orderDetails.put("ORDER ID", order_id);
+                orderDetails.put("Product ID", cartItemModel.getProductId());
+                orderDetails.put("User ID", userId);
+                orderDetails.put("Product QUANTITY", cartItemModel.getProductQuantity());
+                if (cartItemModel.getCuttedPrice() != null) {
+                    orderDetails.put("Cutted PRICE", cartItemModel.getCuttedPrice());
+                }else {
+                    orderDetails.put("Cutted PRICE", "");
+                }
+                orderDetails.put("Product Price", cartItemModel.getProductPrice());
+                if (cartItemModel.getSelectedCouponId() != null) {
+                    orderDetails.put("Coupon ID", cartItemModel.getSelectedCouponId());
+                }else {
+                    orderDetails.put("Coupon ID", "");
+                }
+                if (cartItemModel.getDiscountedPrice() != null) {
+                    orderDetails.put("Discounted price", cartItemModel.getDiscountedPrice());
+                }else {
+                    orderDetails.put("Discounted price", "");
+                }
+                orderDetails.put("Date", FieldValue.serverTimestamp());
+                orderDetails.put("Payment Method", paymentMethod);
+                orderDetails.put("Address", fullAddress.getText());
+                orderDetails.put("FullName", fullName.getText());
+                orderDetails.put("Pincode", pinCode.getText());
+                orderDetails.put("Free Coupons", cartItemModel.getFreeCoupons());
+
+
+                firebaseFirestore.collection("ORDERS").document(order_id).collection("OrderItems").document(cartItemModel.getProductId())
+                        .set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            String error = Objects.requireNonNull(task.getException()).getMessage();
+                            Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            } else {
+                Map<String, Object> orderDetails = new HashMap<>();
+                orderDetails.put("Total Items", cartItemModel.getTotalItems());
+                orderDetails.put("Total Items Price", cartItemModel.getTotalItemPrice());
+                orderDetails.put("Delivery Price", cartItemModel.getDeliveryPrice());
+                orderDetails.put("Total Amount", cartItemModel.getCartTotalAmount());
+                orderDetails.put("Saved Amount", cartItemModel.getSaveAmount());
+                orderDetails.put("Payment Status", "Not Paid");
+                orderDetails.put("Order Status", "Canceled");
+                firebaseFirestore.collection("ORDERS").document(order_id)
+                        .set(orderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            if (paymentMethod.equals("CreditCard")) {
+                                patym();
+                            } else {
+                                Cod();
+                            }
+                        } else {
+                            String error = Objects.requireNonNull(task.getException()).getMessage();
+                            Toast.makeText(DeliveryActivity.this, error, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void patym() {
+        getQtyIds = false;
+        paymentMethodDialog.dismiss();
+        loadingDialog.show();
+        if (ContextCompat.checkSelfPermission(DeliveryActivity.this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(DeliveryActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS}, 101);
+        }
+
+        final String M_id = "YlutwW84809962366406";
+        final String customer_id = FirebaseAuth.getInstance().getUid();
+        order_id = UUID.randomUUID().toString().substring(0, 28);
+        final String url = "https://planned-finishes.000webhostapp.com/paytm/generateChecksum.php";
+        final String callBack = "https://pguat.paytm.com/paytmchecksum/paytmCallback.jsp";
+        RequestQueue requestQueue = Volley.newRequestQueue(DeliveryActivity.this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    if (jsonObject.has("CHECKSUMHASH")) {
+                        String CHECKSUMHASH = jsonObject.getString("CHECKSUMHASH");
+                        PaytmPGService paytmPGService = PaytmPGService.getStagingService(url);
+                        HashMap<String, String> paramMap = new HashMap<String, String>();
+                        paramMap.put("MID", M_id);
+                        paramMap.put("ORDER_ID", order_id);
+                        paramMap.put("CUST_ID", customer_id);
+                        paramMap.put("CHANNEL_ID", "WAP");
+                        paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
+                        paramMap.put("WEBSITE", "WEBSTAGING");
+                        paramMap.put("INDUSTRY_TYPE_ID", "Retail");
+                        paramMap.put("CALLBACK_URL", callBack);
+                        paramMap.put("CHECKSUMHASH", CHECKSUMHASH);
+
+                        PaytmOrder order = new PaytmOrder(paramMap);
+
+                        paytmPGService.initialize(order, null);
+                        paytmPGService.startPaymentTransaction(DeliveryActivity.this, true, true, new PaytmPaymentTransactionCallback() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                            @Override
+                            public void onTransactionResponse(Bundle inResponse) {
+                                //Toast.makeText(getApplicationContext(), "Payment Transaction response " + inResponse.toString(), Toast.LENGTH_LONG).show();
+                                if (success) {
+                                    Map<String, Object> updateStatus = new HashMap<>();
+                                    updateStatus.put("Payment Status", "Paid");
+                                    updateStatus.put("Order Status", "Ordered");
+
+                                    firebaseFirestore.collection("ORDERS").document(order_id)
+                                            .update(updateStatus).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                ShowConfirmationLayout();
+                                            } else {
+                                                Toast.makeText(DeliveryActivity.this, "Order Canceled", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    orderConfirmationLayout.setVisibility(View.GONE);
+                                }
+
+                            }
+
+                            @Override
+                            public void networkNotAvailable() {
+                                Toast.makeText(getApplicationContext(), "Network connection error: Check your internet connectivity", Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void clientAuthenticationFailed(String inErrorMessage) {
+                                Toast.makeText(getApplicationContext(), "Authentication failed: Server error" + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void someUIErrorOccurred(String inErrorMessage) {
+                                Toast.makeText(getApplicationContext(), "UI Error " + inErrorMessage, Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onErrorLoadingWebPage(int iniErrorCode, String inErrorMessage, String inFailingUrl) {
+                                Toast.makeText(getApplicationContext(), "Unable to load webpage " + inErrorMessage.toString(), Toast.LENGTH_LONG).show();
+
+                            }
+
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                            @Override
+                            public void onBackPressedCancelTransaction() {
+                                //Toast.makeText(getApplicationContext(), "Transaction cancelled" , Toast.LENGTH_LONG).show();
+                                //if (success) {
+                                ShowConfirmationLayout();
+                                //} else {
+                                //orderConfirmationLayout.setVisibility(View.GONE);
+                                //}
+                            }
+
+                            @Override
+                            public void onTransactionCancel(String inErrorMessage, Bundle inResponse) {
+                                Toast.makeText(getApplicationContext(), "Transaction cancelled", Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                loadingDialog.dismiss();
+                Toast.makeText(DeliveryActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> paramMap = new HashMap<String, String>();
+                paramMap.put("MID", M_id);
+                paramMap.put("ORDER_ID", order_id);
+                paramMap.put("CUST_ID", customer_id);
+                paramMap.put("CHANNEL_ID", "WAP");
+                paramMap.put("TXN_AMOUNT", totalAmount.getText().toString().substring(3, totalAmount.getText().length() - 2));
+                paramMap.put("WEBSITE", "WEBSTAGING");
+                paramMap.put("INDUSTRY_TYPE_ID", "Retail");
+                paramMap.put("CALLBACK_URL", callBack);
+                return paramMap;
+            }
+        };
+        requestQueue.add(stringRequest);
+
+    }
+
+    private void Cod() {
+        getQtyIds = false;
+        paymentMethodDialog.dismiss();
+        Intent otpIntent = new Intent(DeliveryActivity.this, OTPVerificationActivity.class);
+        otpIntent.putExtra("mobileNo", mobileNo.substring(0, 10));
+        otpIntent.putExtra("OrderId", order_id);
+        startActivity(otpIntent);
+    }
 
 }

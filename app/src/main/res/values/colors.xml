@@ -7,4 +7,7 @@
     <color name="successfulGreen">#11A10C</color>
     <color name="transparent">#00000000</color>
     <color name="greyBackground">#d6d6d6</color>
+    <color name="couponPurple">#3606b6</color>
+    <color name="couponRed">#FF3030</color>
+
 </resources>

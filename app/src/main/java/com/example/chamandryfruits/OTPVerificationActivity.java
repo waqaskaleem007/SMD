@@ -1,5 +1,6 @@
 package com.example.chamandryfruits;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -15,6 +16,9 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -50,8 +55,23 @@ public class OTPVerificationActivity extends AppCompatActivity  {
         verify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DeliveryActivity.codOrderConfirmed = true;
-                finish();
+                Map<String, Object> updateStatus = new HashMap<>();
+                updateStatus.put("Payment Status", "Paid");
+                updateStatus.put("Order Status", "Ordered");
+                String order_id = getIntent().getStringExtra("OrderId");
+                FirebaseFirestore.getInstance().collection("ORDERS").document(order_id)
+                        .update(updateStatus).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            DeliveryActivity.codOrderConfirmed = true;
+                            finish();
+                        } else {
+                            Toast.makeText(OTPVerificationActivity.this, "Order Canceled", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
                     /*
                     if(otp.getText().toString().equals("123456")){
                         DeliveryActivity.codOrderConfirmed = true;

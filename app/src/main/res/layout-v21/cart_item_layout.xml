@@ -100,6 +100,7 @@
         android:text="@string/offers_applied"
         android:textColor="@color/successfulGreen"
         android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/product_price" />
 
@@ -112,6 +113,7 @@
         android:text="@string/coupons_applied"
         android:textColor="@color/colorPrimary"
         android:textSize="12sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/offers_applied" />
 
@@ -136,7 +138,7 @@
         android:layout_width="409dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:background="#FF3030"
+        android:background="@color/couponRed"
         android:gravity="right"
         android:orientation="horizontal"
         android:padding="16dp"
@@ -149,7 +151,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/check_price_after_coupon_redemption"
+            android:text="@string/apply_your_coupon_here"
             android:textAlignment="center"
             android:textColor="@color/colorAccent" />
 

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,6 +108,10 @@ public class MyCartFragment extends Fragment {
     public void onStart() {
         super.onStart();
         cartAdapter.notifyDataSetChanged();
+        if(DBQueries.rewardsModels.size() == 0){
+            loadingDialog.show();
+            DBQueries.LoadRewards(getContext(),loadingDialog,false);
+        }
         if (DBQueries.cartItemModels.size() == 0) {
             DBQueries.cartList.clear();
             DBQueries.LoadCartList(getContext(), loadingDialog, true, new TextView(getContext()), totalAmount);
@@ -117,6 +122,7 @@ public class MyCartFragment extends Fragment {
             if (DBQueries.cartItemModels.size() > DBQueries.cartList.size()) {
                 DBQueries.cartItemModels.remove(DBQueries.cartItemModels.size() - 1);
             }
+
             DBQueries.LoadCartList(getContext(), loadingDialog, true, new TextView(getContext()), totalAmount);
             //DBQueries.cartItemModels.add(new CartItemModel(CartItemModel.TOTAL_AMOUNT));
             LinearLayout parent = (LinearLayout) totalAmount.getParent().getParent();
@@ -124,6 +130,25 @@ public class MyCartFragment extends Fragment {
             count--;
             loadingDialog.dismiss();
 
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for(CartItemModel cartItemModel : DBQueries.cartItemModels){
+            if(!TextUtils.isEmpty(cartItemModel.getSelectedCouponId())){
+                for (RewardsModel rewardsModel : DBQueries.rewardsModels) {
+                    if (rewardsModel.getCouponId().equals(cartItemModel.getSelectedCouponId())) {
+                        rewardsModel.setAlreadyUsed(false);
+
+                    }
+                }
+                cartItemModel.setSelectedCouponId(null);
+                if(MyRewardsFragment.myRewardsAdapter != null) {
+                    MyRewardsFragment.myRewardsAdapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 }
